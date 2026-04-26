@@ -742,6 +742,7 @@ SkillsSelectorTab:Dropdown({
     Desc = "",
     Values = { "None", "Adrenaline", "Punch", "Caretaker", "Cloak", "Block", "Dash", "BonusPad", "Hotdog", "Revolver", "Taunt", "Banana" },
     Value = "None",
+    Locked = true,
     Callback = function(option)
 
         local player = game:GetService("Players").LocalPlayer
@@ -761,6 +762,7 @@ SkillsSelectorTab:Dropdown({
     Desc = "",
     Values = { "None", "Adrenaline", "Punch", "Caretaker", "Cloak", "Block", "Dash", "BonusPad", "Hotdog", "Revolver", "Taunt", "Banana" },
     Value = "None",
+    Locked = true,
     Callback = function(option)
 
         local player = game:GetService("Players").LocalPlayer
@@ -778,7 +780,7 @@ SkillsSelectorTab:Dropdown({
 SkillsSelectorTab:Button({
     Title = "Choose Ability",
     Desc = "",
-    Locked = false,
+    Locked = true,
     Callback = function()
 
         local player = game:GetService("Players").LocalPlayer
