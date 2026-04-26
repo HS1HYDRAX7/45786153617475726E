@@ -325,7 +325,7 @@ AimbotTab:Slider({
 })
 
 VisualsTab:Section({
-    Title = "ESP",
+    Title = "Visuals",
     Icon = "users",
 })
 
