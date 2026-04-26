@@ -326,7 +326,7 @@ AimbotTab:Slider({
 
 VisualsTab:Section({
     Title = "Visuals",
-    Icon = "users",
+    Icon = "eye",
 })
 
 VisualsTab:Toggle({
