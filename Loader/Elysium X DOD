@@ -213,23 +213,49 @@ MovementTab:Toggle({
     Value = false,
     Callback = function(state)
 
-        local player = game:GetService("Players").LocalPlayer
+        local Players = game:GetService("Players")
         local UIS = game:GetService("UserInputService")
+        local LocalPlayer = Players.LocalPlayer
 
         _G.jumpEnabledPC = state
         _G.jumpPowerValue = _G.jumpPowerValue or 50
 
         local function getCharacter()
             for _,v in ipairs(workspace:GetDescendants()) do
-                if v:IsA("Model") and v.Name == player.Name then
+                if v:IsA("Model") and v.Name == LocalPlayer.Name then
                     return v
                 end
             end
         end
 
-        local function jump()
-            if not _G.jumpEnabledPC then return end
+        local function playAssets(char)
+            if not char then return end
 
+            local root = char:FindFirstChild("HumanoidRootPart")
+            if root then
+                local s = Instance.new("Sound")
+                s.SoundId = "rbxassetid://2428506580"
+                s.Volume = 1
+                s.Parent = root
+                s:Play()
+                game:GetService("Debris"):AddItem(s, 3)
+            end
+
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                local animator = hum:FindFirstChildOfClass("Animator") or Instance.new("Animator", hum)
+
+                local anim = Instance.new("Animation")
+                anim.AnimationId = "rbxassetid://73252070456923"
+
+                local track = animator:LoadAnimation(anim)
+                track:Play()
+
+                game:GetService("Debris"):AddItem(anim, 2)
+            end
+        end
+
+        local function jump()
             local char = getCharacter()
             if not char then return end
 
@@ -239,15 +265,11 @@ MovementTab:Toggle({
             if not root or not hum then return end
             if hum.FloorMaterial == Enum.Material.Air then return end
 
-            root.Velocity = Vector3.new(
-                root.Velocity.X,
-                _G.jumpPowerValue,
-                root.Velocity.Z
-            )
+            root.Velocity = Vector3.new(root.Velocity.X, _G.jumpPowerValue, root.Velocity.Z)
+            playAssets(char)
         end
 
         if state then
-
             if _G.jumpInputConn then
                 _G.jumpInputConn:Disconnect()
             end
@@ -258,16 +280,11 @@ MovementTab:Toggle({
                     jump()
                 end
             end)
-
         else
-
-            _G.jumpEnabledPC = false
-
             if _G.jumpInputConn then
                 _G.jumpInputConn:Disconnect()
                 _G.jumpInputConn = nil
             end
-
         end
 
     end
@@ -293,16 +310,58 @@ MovementTab:Toggle({
     Value = false,
     Callback = function(state)
 
-        local player = game:GetService("Players").LocalPlayer
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
 
         _G.mobileJumpPowerValue = _G.mobileJumpPowerValue or 50
 
         local function getCharacter()
             for _,v in ipairs(workspace:GetDescendants()) do
-                if v:IsA("Model") and v.Name == player.Name then
+                if v:IsA("Model") and v.Name == LocalPlayer.Name then
                     return v
                 end
             end
+        end
+
+        local function playAssets(char)
+            if not char then return end
+
+            local root = char:FindFirstChild("HumanoidRootPart")
+            if root then
+                local s = Instance.new("Sound")
+                s.SoundId = "rbxassetid://2428506580"
+                s.Volume = 1
+                s.Parent = root
+                s:Play()
+                game:GetService("Debris"):AddItem(s, 3)
+            end
+
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                local animator = hum:FindFirstChildOfClass("Animator") or Instance.new("Animator", hum)
+
+                local anim = Instance.new("Animation")
+                anim.AnimationId = "rbxassetid://73252070456923"
+
+                local track = animator:LoadAnimation(anim)
+                track:Play()
+
+                game:GetService("Debris"):AddItem(anim, 2)
+            end
+        end
+
+        local function jump()
+            local char = getCharacter()
+            if not char then return end
+
+            local root = char:FindFirstChild("HumanoidRootPart")
+            local hum = char:FindFirstChildOfClass("Humanoid")
+
+            if not root or not hum then return end
+            if hum.FloorMaterial == Enum.Material.Air then return end
+
+            root.Velocity = Vector3.new(root.Velocity.X, _G.mobileJumpPowerValue, root.Velocity.Z)
+            playAssets(char)
         end
 
         if state then
@@ -331,25 +390,6 @@ MovementTab:Toggle({
             icon.Position = UDim2.new(0.5, 0, 0.5, 0)
             icon.BackgroundTransparency = 1
             icon.Image = "rbxassetid://99260194327483"
-
-            local function jump()
-                local char = getCharacter()
-                if not char then return end
-
-                local root = char:FindFirstChild("HumanoidRootPart")
-                local hum = char:FindFirstChildOfClass("Humanoid")
-
-                if not root or not hum then return end
-                if hum.FloorMaterial == Enum.Material.Air then return end
-
-                local power = _G.mobileJumpPowerValue or 50
-
-                root.Velocity = Vector3.new(
-                    root.Velocity.X,
-                    power,
-                    root.Velocity.Z
-                )
-            end
 
             _G.jumpBtnConnection = button.MouseButton1Click:Connect(jump)
             _G.jumpGui = gui
