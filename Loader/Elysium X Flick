@@ -1,7 +1,7 @@
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local Window = WindUI:CreateWindow({
-    Title = "Elysium X Rework",
+    Title = "Elysium X Rework",
     Icon = "biohazard",
     Author = "By Zenith Studios",
     Folder = "Elysium X Rework",
@@ -66,6 +66,19 @@ MainTab:Paragraph({
                 WindUI:Notify({
                     Title = "Website",
                     Content = "Link Copied",
+                    Duration = 3,
+                    Icon = "link-2",
+                })
+            end,
+        },
+        {
+            Icon = "message-circle",
+            Title = "Discord",
+            Callback = function()
+                setclipboard("https://discord.gg/D97k9TTCq3")
+                WindUI:Notify({
+                    Title = "Discord",
+                    Content = "Invite Copied",
                     Duration = 3,
                     Icon = "link-2",
                 })
