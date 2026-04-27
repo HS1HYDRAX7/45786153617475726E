@@ -842,60 +842,6 @@ SkillsSelectorTab:Button({
     end
 })
 
-SkillsSelectorTab:Button({
-    Title = "Give All Abilities",
-    Desc = "",
-    Callback = function()
-
-        local Abilities_Table = {
-            "Cloak",
-            "Punch",
-            "Taunt",
-            "BonusPad",
-            "Block",
-            "Caretaker",
-            "Dash",
-            "Hotdog",
-            "Revolver",
-            "Adrenaline",
-            "Banana"
-        }
-
-        if TestRequire and TestRequire() ~= true then return end
-
-        local Remote = game:GetService("ReplicatedStorage")
-            :WaitForChild("Events")
-            :WaitForChild("RemoteEvents")
-            :WaitForChild("AbilitySelection")
-
-        local AbilityModule
-        pcall(function()
-            AbilityModule = require(game:GetService("Players").LocalPlayer
-                :WaitForChild("PlayerGui")
-                :WaitForChild("MainGui")
-                :WaitForChild("Client")
-                :WaitForChild("Modules")
-                :WaitForChild("Ability"))
-        end)
-
-        -- PRIME (ESSENCIAL)
-        Remote:FireServer(unpack({{tostring("Adrenaline"), tostring("Adrenaline")}}))
-        task.wait(0.2)
-
-        for _,ability in ipairs(Abilities_Table) do
-
-            Remote:FireServer(unpack({{tostring(ability)}}))
-
-            if AbilityModule then
-                AbilityModule.CreateAbility(ReturnAbilityData(ability))
-            end
-
-            task.wait(0.1)
-        end
-
-    end
-})
-
 MiscTab:Section({
     Title = "External Scripts",
     Icon = "folder-open",
