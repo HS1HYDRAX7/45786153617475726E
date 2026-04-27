@@ -581,6 +581,144 @@ Music:Button({
     end
 })
 
+MiscTab:Section({
+    Title = "Avatar Copier",
+    Icon = "copy",
+})
+
+MiscTab:Input({
+    Title = "Username",
+    Desc = "",
+    Placeholder = "username",
+    Callback = function(text)
+        _G._avatarUser = text
+    end
+})
+
+MiscTab:Button({
+    Title = "Copy Avatar",
+    Callback = function()
+
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        if not _G._avatarUser or _G._avatarUser == "" then return end
+
+        local function apply_avatar(username)
+            task.spawn(function()
+                local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+                local hum = char:WaitForChild("Humanoid", 10)
+                if not hum then return end
+
+                if not _G._originalDesc then
+                    _G._originalDesc = hum:GetAppliedDescription()
+                end
+
+                local targetPlayer = nil
+                for _, p in ipairs(Players:GetPlayers()) do
+                    if p.Name:lower() == username:lower() then
+                        targetPlayer = p
+                        break
+                    end
+                end
+
+                local desc
+                if targetPlayer and targetPlayer.Character then
+                    local targetHum = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+                    if targetHum then
+                        desc = targetHum:GetAppliedDescription()
+                    end
+                end
+
+                if not desc then
+                    local ok, userId = pcall(Players.GetUserIdFromNameAsync, Players, username)
+                    if not ok then return end
+                    local ok2, d = pcall(Players.GetHumanoidDescriptionFromUserId, Players, userId)
+                    if not ok2 then return end
+                    desc = d
+                end
+
+                for _, c in ipairs(char:GetChildren()) do
+                    if c:IsA("Accessory") or c:IsA("Hat") or c:IsA("BodyColors") or
+                       c:IsA("CharacterMesh") or c:IsA("Shirt") or c:IsA("Pants") or
+                       c:IsA("ShirtGraphic") then
+                        c:Destroy()
+                    end
+                end
+
+                pcall(function()
+                    if hum.ApplyDescriptionClientServer then
+                        hum:ApplyDescriptionClientServer(desc)
+                    else
+                        hum:ApplyDescription(desc)
+                    end
+                end)
+
+                local bc = char:FindFirstChildOfClass("BodyColors") or Instance.new("BodyColors")
+                bc.Parent = char
+                bc.HeadColor3 = desc.HeadColor
+                bc.TorsoColor3 = desc.TorsoColor
+                bc.LeftArmColor3 = desc.LeftArmColor
+                bc.RightArmColor3 = desc.RightArmColor
+                bc.LeftLegColor3 = desc.LeftLegColor
+                bc.RightLegColor3 = desc.RightLegColor
+            end)
+        end
+
+        _G._lastAvatarUser = _G._avatarUser
+        apply_avatar(_G._avatarUser)
+
+        if _G._avatarRespawnConn then
+            _G._avatarRespawnConn:Disconnect()
+        end
+
+        _G._avatarRespawnConn = Players.LocalPlayer.CharacterAdded:Connect(function()
+            task.wait(0.65)
+            if _G._lastAvatarUser then
+                apply_avatar(_G._lastAvatarUser)
+            end
+        end)
+
+    end
+})
+
+MiscTab:Button({
+    Title = "Refresh Avatar",
+    Callback = function()
+
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        if not _G._originalDesc then return end
+
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hum then return end
+
+        for _, c in ipairs(char:GetChildren()) do
+            if c:IsA("Accessory") or c:IsA("Hat") or c:IsA("BodyColors") or
+               c:IsA("CharacterMesh") or c:IsA("Shirt") or c:IsA("Pants") or
+               c:IsA("ShirtGraphic") then
+                c:Destroy()
+            end
+        end
+
+        pcall(function()
+            if hum.ApplyDescriptionClientServer then
+                hum:ApplyDescriptionClientServer(_G._originalDesc)
+            else
+                hum:ApplyDescription(_G._originalDesc)
+            end
+        end)
+
+        if _G._avatarRespawnConn then
+            _G._avatarRespawnConn:Disconnect()
+            _G._avatarRespawnConn = nil
+        end
+
+    end
+})
+
 SettingsTab:Section({
     Title = "General Settings",
     Icon = "cog",
