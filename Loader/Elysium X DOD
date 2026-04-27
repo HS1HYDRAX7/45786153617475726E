@@ -863,11 +863,10 @@ SkillsSelectorTab:Button({
 
         if TestRequire and TestRequire() ~= true then return end
 
-        game:GetService("ReplicatedStorage")
+        local Remote = game:GetService("ReplicatedStorage")
             :WaitForChild("Events")
             :WaitForChild("RemoteEvents")
             :WaitForChild("AbilitySelection")
-            :FireServer(Abilities_Table)
 
         local AbilityModule
         pcall(function()
@@ -879,13 +878,18 @@ SkillsSelectorTab:Button({
                 :WaitForChild("Ability"))
         end)
 
-        if AbilityModule then
+        task.spawn(function()
             for _,a in ipairs(Abilities_Table) do
-                AbilityModule.CreateAbility({
-                    Name = a
-                })
+
+                Remote:FireServer(unpack({{tostring(a)}}))
+
+                if AbilityModule then
+                    AbilityModule.CreateAbility({Name = a})
+                end
+
+                task.wait(0.15) -- ESSENCIAL (evita sobrescrever)
             end
-        end
+        end)
 
     end
 })
