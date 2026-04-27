@@ -350,29 +350,68 @@ AimbotTab:Toggle({
 
         local Players = game:GetService("Players")
         local RunService = game:GetService("RunService")
-        local VirtualInputManager = game:GetService("VirtualInputManager")
 
         local player = Players.LocalPlayer
         local camera = workspace.CurrentCamera
 
         _G._autoShoot = state
+        _G._wallcheck = _G._wallcheck or false
 
-        local function getTargetInCenter()
+        local function getCharacter(plr)
+            for _,v in ipairs(workspace:GetDescendants()) do
+                if v:IsA("Model") and v.Name == plr.Name then
+                    return v
+                end
+            end
+        end
+
+        local function getFireButton()
+            local gui = player:FindFirstChild("PlayerGui")
+            if not gui then return end
+            return gui:FindFirstChild("FireButton", true)
+        end
+
+        local function visibleCheck(targetPart)
+            if not _G._wallcheck then return true end
+
+            local origin = camera.CFrame.Position
+            local direction = (targetPart.Position - origin)
+
+            local params = RaycastParams.new()
+            params.FilterType = Enum.RaycastFilterType.Blacklist
+            params.FilterDescendantsInstances = { player.Character }
+
+            local result = workspace:Raycast(origin, direction, params)
+
+            if result then
+                return result.Instance:IsDescendantOf(targetPart.Parent)
+            end
+
+            return true
+        end
+
+        local function getTarget()
             for _,v in ipairs(Players:GetPlayers()) do
-                if v ~= player and v.Character then
-                    local head = v.Character:FindFirstChild("Head")
-                    if head then
-                        local pos, visible = camera:WorldToViewportPoint(head.Position)
+                if v ~= player then
 
-                        if visible then
-                            local center = Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)
-                            local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
+                    local char = getCharacter(v)
+                    if char then
+                        local head = char:FindFirstChild("Head")
 
-                            if dist < 50 then
-                                return true
+                        if head then
+                            local pos, visible = camera:WorldToViewportPoint(head.Position)
+
+                            if visible then
+                                local center = Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)
+                                local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
+
+                                if dist < 50 and visibleCheck(head) then
+                                    return true
+                                end
                             end
                         end
                     end
+
                 end
             end
         end
@@ -382,9 +421,14 @@ AimbotTab:Toggle({
 
                 if not _G._autoShoot then return end
 
-                if getTargetInCenter() then
-                    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-                    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                if getTarget() then
+                    local btn = getFireButton()
+
+                    if btn then
+                        pcall(function()
+                            btn:Activate()
+                        end)
+                    end
                 end
 
             end)
@@ -392,6 +436,96 @@ AimbotTab:Toggle({
             if _G._autoShootConn then
                 _G._autoShootConn:Disconnect()
                 _G._autoShootConn = nil
+            end
+        end
+
+    end
+})
+
+AimbotTab:Toggle({
+    Title = "Auto Shoot (PC)",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local VirtualInputManager = game:GetService("VirtualInputManager")
+
+        local player = Players.LocalPlayer
+        local camera = workspace.CurrentCamera
+
+        _G._autoShootPC = state
+        _G._wallcheck = _G._wallcheck or false
+
+        local function getCharacter(plr)
+            for _,v in ipairs(workspace:GetDescendants()) do
+                if v:IsA("Model") and v.Name == plr.Name then
+                    return v
+                end
+            end
+        end
+
+        local function visibleCheck(targetPart)
+            if not _G._wallcheck then return true end
+
+            local origin = camera.CFrame.Position
+            local direction = (targetPart.Position - origin)
+
+            local params = RaycastParams.new()
+            params.FilterType = Enum.RaycastFilterType.Blacklist
+            params.FilterDescendantsInstances = { player.Character }
+
+            local result = workspace:Raycast(origin, direction, params)
+
+            if result then
+                return result.Instance:IsDescendantOf(targetPart.Parent)
+            end
+
+            return true
+        end
+
+        local function getTarget()
+            for _,v in ipairs(Players:GetPlayers()) do
+                if v ~= player then
+
+                    local char = getCharacter(v)
+                    if char then
+                        local head = char:FindFirstChild("Head")
+
+                        if head then
+                            local pos, visible = camera:WorldToViewportPoint(head.Position)
+
+                            if visible then
+                                local center = Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)
+                                local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
+
+                                if dist < 50 and visibleCheck(head) then
+                                    return true
+                                end
+                            end
+                        end
+                    end
+
+                end
+            end
+        end
+
+        if state then
+            _G._autoShootPCConn = RunService.RenderStepped:Connect(function()
+
+                if not _G._autoShootPC then return end
+
+                if getTarget() then
+                    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                end
+
+            end)
+        else
+            if _G._autoShootPCConn then
+                _G._autoShootPCConn:Disconnect()
+                _G._autoShootPCConn = nil
             end
         end
 
