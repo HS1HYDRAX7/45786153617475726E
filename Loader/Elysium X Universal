@@ -16,9 +16,9 @@ local Window = WindUI:CreateWindow({
 Window:SetToggleKey(Enum.KeyCode.G)
 
 Window:Tag({
-    Title = "Rework In Progress",
-    Icon = "book-plus",
-    Color = Color3.fromHex("#000080"),
+    Title = "V0.2",
+    Icon = "astroid",
+    Color = Color3.fromHex("#990000"),
     Radius = 13,
 })
 
