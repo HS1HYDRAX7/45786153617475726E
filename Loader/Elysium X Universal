@@ -388,6 +388,15 @@ MiscTab:Button({
 })
 
 MiscTab:Button({
+    Title = "Dex Plus",
+    Icon = "file",
+    Locked = false,
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/DexPlusBackup.luau"))()
+    end
+})
+
+MiscTab:Button({
     Title = "Elysium Mobile KeyBoard",
     Icon = "file",
     Locked = false,
