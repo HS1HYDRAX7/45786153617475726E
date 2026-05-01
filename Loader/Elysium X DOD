@@ -562,22 +562,32 @@ VisualsTab:Toggle({
 
         _G.ignoreSelf = state
 
-        local function removeESP(char)
+        local function protect(char)
             if not char then return end
-            local h = char:FindFirstChild("ESP_HIGHLIGHT")
-            if h then h:Destroy() end
-        end
 
-        local function setup(char)
-            if not _G.ignoreSelf then return end
-            task.wait(0.1)
-            removeESP(char)
+            local function remove()
+                local h = char:FindFirstChild("ESP_HIGHLIGHT")
+                if h then h:Destroy() end
+            end
+
+            remove()
+
+            if _G.ignoreAddedConn then
+                _G.ignoreAddedConn:Disconnect()
+            end
+
+            _G.ignoreAddedConn = char.ChildAdded:Connect(function(child)
+                if not _G.ignoreSelf then return end
+                if child.Name == "ESP_HIGHLIGHT" then
+                    child:Destroy()
+                end
+            end)
         end
 
         if state then
 
             if player.Character then
-                setup(player.Character)
+                protect(player.Character)
             end
 
             if _G.ignoreCharConn then
@@ -585,7 +595,8 @@ VisualsTab:Toggle({
             end
 
             _G.ignoreCharConn = player.CharacterAdded:Connect(function(char)
-                setup(char)
+                task.wait(0.1)
+                protect(char)
             end)
 
         else
@@ -595,6 +606,11 @@ VisualsTab:Toggle({
             if _G.ignoreCharConn then
                 _G.ignoreCharConn:Disconnect()
                 _G.ignoreCharConn = nil
+            end
+
+            if _G.ignoreAddedConn then
+                _G.ignoreAddedConn:Disconnect()
+                _G.ignoreAddedConn = nil
             end
 
         end
