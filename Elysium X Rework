@@ -94,6 +94,16 @@ local function animateLetters(tbl)
     end
 end
 
+local function animateSingleLetter(lbl)
+    local origPos = lbl.Position
+    lbl.Position = origPos + UDim2.new(0,0,1,0)
+    lbl.TextTransparency = 1
+    TweenService:Create(lbl, TweenInfo.new(0.25, Enum.EasingStyle.Back), {
+        TextTransparency = 0,
+        Position = origPos
+    }):Play()
+end
+
 local statusFrame = Instance.new("Frame")
 statusFrame.Size = UDim2.new(1,-80,0,22)
 statusFrame.Position = UDim2.new(0,40,0,35)
@@ -101,6 +111,20 @@ statusFrame.BackgroundTransparency = 1
 statusFrame.Parent = container
 
 local statusLetters = createAnimatedText(statusFrame,"Checking",Color3.fromRGB(255,255,255))
+
+local loadingAssetsFrame = Instance.new("Frame")
+loadingAssetsFrame.Size = UDim2.new(1,-80,0,22)
+loadingAssetsFrame.Position = UDim2.new(0,40,0,35)
+loadingAssetsFrame.BackgroundTransparency = 1
+loadingAssetsFrame.Visible = false
+loadingAssetsFrame.Parent = container
+
+local loadingModulesFrame = Instance.new("Frame")
+loadingModulesFrame.Size = UDim2.new(1,-80,0,22)
+loadingModulesFrame.Position = UDim2.new(0,40,0,35)
+loadingModulesFrame.BackgroundTransparency = 1
+loadingModulesFrame.Visible = false
+loadingModulesFrame.Parent = container
 
 local executingFrame = Instance.new("Frame")
 executingFrame.Size = UDim2.new(1,-80,0,22)
@@ -157,6 +181,53 @@ local function updateLoader(progress)
     }):Play()
 end
 
+local function buildCounterLabel(parent, prefix, current, total, color)
+    local charSize = 10
+    local prefixStr = prefix .. " ("
+    local suffixStr = "/" .. tostring(total) .. ")"
+    local fullText = prefixStr .. tostring(current) .. suffixStr
+
+    local labels = {}
+
+    for i = 1, #fullText do
+        local char = fullText:sub(i,i)
+        local lbl = Instance.new("TextLabel")
+        lbl.Size = UDim2.new(0, charSize, 1, 0)
+        lbl.Position = UDim2.new(0, (i-1)*charSize, 0, 0)
+        lbl.BackgroundTransparency = 1
+        lbl.Text = char
+        lbl.TextColor3 = color
+        lbl.TextSize = 15
+        lbl.Font = Enum.Font.GothamBold
+        lbl.TextTransparency = 0
+        lbl.Parent = parent
+        table.insert(labels, lbl)
+    end
+
+    return labels
+end
+
+local function updateCounterNumber(labels, prefix, current, total, color)
+    local prefixStr = prefix .. " ("
+    local suffixStr = "/" .. tostring(total) .. ")"
+    local newCurrentStr = tostring(current)
+    local prefixLen = #prefixStr
+
+    for i = prefixLen + 1, prefixLen + #tostring(current - 1) do
+        if labels[i] then
+            labels[i].Text = ""
+        end
+    end
+
+    for i = 1, #newCurrentStr do
+        local idx = prefixLen + i
+        if labels[idx] then
+            labels[idx].Text = newCurrentStr:sub(i,i)
+            animateSingleLetter(labels[idx])
+        end
+    end
+end
+
 RunService.RenderStepped:Connect(function(dt)
     grad.Rotation += dt*120
     spinner.Rotation += dt*180
@@ -199,22 +270,49 @@ task.spawn(function()
     animateLetters(creditLetters)
 
     task.wait(0.6)
-    updateLoader(30)
+    updateLoader(15)
 
-    task.wait(0.8)
-    updateLoader(70)
-
-    task.wait(0.8)
+    task.wait(0.6)
 
     statusFrame.Visible = false
+    loadingAssetsFrame.Visible = true
+
+    local assetsTotal = 5
+    local assetsLabels = buildCounterLabel(loadingAssetsFrame, "Loading Assets", 0, assetsTotal, Color3.fromRGB(255,255,255))
+
+    for i = 1, assetsTotal do
+        task.wait(0.35)
+        updateCounterNumber(assetsLabels, "Loading Assets", i, assetsTotal, Color3.fromRGB(255,255,255))
+        updateLoader(15 + (i / assetsTotal) * 30)
+    end
+
+    task.wait(0.4)
+
+    loadingAssetsFrame.Visible = false
+    loadingModulesFrame.Visible = true
+
+    local modulesTotal = 5
+    local modulesLabels = buildCounterLabel(loadingModulesFrame, "Loading Modules", 0, modulesTotal, Color3.fromRGB(255,255,255))
+
+    for i = 1, modulesTotal do
+        task.wait(0.35)
+        updateCounterNumber(modulesLabels, "Loading Modules", i, modulesTotal, Color3.fromRGB(255,255,255))
+        updateLoader(45 + (i / modulesTotal) * 35)
+    end
+
+    task.wait(0.4)
+
+    loadingModulesFrame.Visible = false
     executingFrame.Visible = true
     animateLetters(executingLetters)
 
     updateLoader(100)
 
-task.delay(4, function()
-    finishSound:Play()
-end)
+    task.delay(0.1, function()
+        finishSound:Play()
+        finishSound.Ended:Wait()
+        finishSound:Destroy()
+    end)
 
     task.wait(0.5)
 
