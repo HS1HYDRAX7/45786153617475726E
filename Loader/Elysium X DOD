@@ -231,26 +231,51 @@ MovementTab:Toggle({
             if char:GetAttribute("WalkSpeedModifier") == nil then return end
 
             if _G.sprintEnabled then
-                char:SetAttribute("WalkSpeedModifier", _G.sprintValue)
+                if char:GetAttribute("WalkSpeedModifier") ~= _G.sprintValue then
+                    char:SetAttribute("WalkSpeedModifier", _G.sprintValue)
+                end
             else
-                char:SetAttribute("WalkSpeedModifier", 0)
+                if char:GetAttribute("WalkSpeedModifier") ~= 0 then
+                    char:SetAttribute("WalkSpeedModifier", 0)
+                end
             end
+        end
+
+        local function hookAttribute(char)
+            if not char then return end
+
+            if _G.sprintAttrChangeConn then
+                _G.sprintAttrChangeConn:Disconnect()
+            end
+
+            _G.sprintAttrChangeConn = char:GetAttributeChangedSignal("WalkSpeedModifier"):Connect(function()
+                if not _G.sprintEnabled then return end
+
+                local current = char:GetAttribute("WalkSpeedModifier")
+                if current ~= _G.sprintValue then
+                    char:SetAttribute("WalkSpeedModifier", _G.sprintValue)
+                end
+            end)
         end
 
         if state then
 
             local char = getCharacter()
             apply(char)
+            hookAttribute(char)
 
             _G.sprintCharConn = player.CharacterAdded:Connect(function()
                 task.wait(0.5)
-                apply(getCharacter())
+                local newChar = getCharacter()
+                apply(newChar)
+                hookAttribute(newChar)
             end)
 
-            _G.sprintAttrConn = workspace.DescendantAdded:Connect(function(v)
+            _G.sprintDescConn = workspace.DescendantAdded:Connect(function(v)
                 if v:IsA("Model") and v.Name == player.Name then
                     task.wait(0.2)
                     apply(v)
+                    hookAttribute(v)
                 end
             end)
 
@@ -264,9 +289,14 @@ MovementTab:Toggle({
                 _G.sprintCharConn = nil
             end
 
-            if _G.sprintAttrConn then
-                _G.sprintAttrConn:Disconnect()
-                _G.sprintAttrConn = nil
+            if _G.sprintDescConn then
+                _G.sprintDescConn:Disconnect()
+                _G.sprintDescConn = nil
+            end
+
+            if _G.sprintAttrChangeConn then
+                _G.sprintAttrChangeConn:Disconnect()
+                _G.sprintAttrChangeConn = nil
             end
 
         end
@@ -995,89 +1025,6 @@ AntiTab:Toggle({
             if _G.antiKillerConn then
                 _G.antiKillerConn:Disconnect()
                 _G.antiKillerConn = nil
-            end
-
-            scan()
-        end
-
-    end
-})
-
-AntiTab:Toggle({
-    Title = "Anti Evil Scary",
-    Desc = "",
-    Value = false,
-    Callback = function(state)
-
-        local Workspace = game:GetService("Workspace")
-        local Cleanable = Workspace:WaitForChild("GameAssets")
-            :WaitForChild("Debris")
-            :WaitForChild("Cleanable")
-
-        _G.antiEvil = state
-        _G.antiEvilCache = _G.antiEvilCache or {}
-
-        local function apply(obj)
-            if obj.Name ~= "EvilScary" then return end
-
-            for _,v in ipairs(obj:GetDescendants()) do
-
-                if v:IsA("BasePart") then
-
-                    if _G.antiEvil then
-                        if not _G.antiEvilCache[v] then
-                            _G.antiEvilCache[v] = {
-                                CanCollide = v.CanCollide,
-                                CanTouch = v.CanTouch,
-                                CanQuery = v.CanQuery,
-                                Transparency = v.Transparency
-                            }
-                        end
-
-                        v.CanCollide = false
-                        v.CanTouch = false
-                        pcall(function() v.CanQuery = false end)
-                        v.Transparency = 1
-
-                    else
-                        if _G.antiEvilCache[v] then
-                            local data = _G.antiEvilCache[v]
-                            v.CanCollide = data.CanCollide
-                            v.CanTouch = data.CanTouch
-                            pcall(function() v.CanQuery = data.CanQuery end)
-                            v.Transparency = data.Transparency
-                        end
-                    end
-
-                elseif v:IsA("TouchTransmitter") then
-                    if _G.antiEvil then
-                        v.Enabled = false
-                    else
-                        v.Enabled = true
-                    end
-                end
-
-            end
-        end
-
-        local function scan()
-            for _,v in ipairs(Cleanable:GetChildren()) do
-                apply(v)
-            end
-        end
-
-        scan()
-
-        if state then
-            _G.antiEvilConn = Cleanable.ChildAdded:Connect(function(v)
-                if not _G.antiEvil then return end
-                task.wait(0.05)
-                apply(v)
-            end)
-        else
-            if _G.antiEvilConn then
-                _G.antiEvilConn:Disconnect()
-                _G.antiEvilConn = nil
             end
 
             scan()
