@@ -1034,11 +1034,19 @@ end
 local function getAnimationOptions(killerModel)
     local out = {}
     if not killerModel then return out end
+
     for _, child in ipairs(killerModel:GetChildren()) do
-        if child:FindFirstChild("Animations") then
+        if child.Name == "Default" and child:FindFirstChild("Animations") then
+            table.insert(out, 1, child.Name)
+        end
+    end
+
+    for _, child in ipairs(killerModel:GetChildren()) do
+        if child.Name ~= "Default" and child:FindFirstChild("Animations") then
             table.insert(out, child.Name)
         end
     end
+
     return out
 end
 
@@ -1061,7 +1069,7 @@ for _, killer in ipairs(getKillerModels()) do
         AnimationsTab:Dropdown({
             Title = "Choose " .. killer.Name .. " animations",
             Values = options,
-            Value = selected,
+            Value = options[1],
             Callback = function(val)
                 selected = val
             end
