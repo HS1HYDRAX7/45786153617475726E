@@ -39,6 +39,7 @@ local MainTab = Window:Tab({ Title = "Main", Icon = "star", Locked = false })
 local MovementTab = Window:Tab({ Title = "Movement", Icon = "chevrons-right", Locked = false })
 local VisualsTab = Window:Tab({ Title = "Visuals", Icon = "eye", Locked = false })
 local AbilitiesManagerTab = Window:Tab({ Title = "Abilities Manager", Icon = "blocks", Locked = false })
+local AnimationsTab = Window:Tab({ Title = "Animations", Icon = "play", Locked = false })
 local AntiTab = Window:Tab({ Title = "Anti", Icon = "circle-off", Locked = false })
 local MiscTab = Window:Tab({ Title = "Misc", Icon = "folder", Locked = false })
 local SettingsTab = Window:Tab({ Title = "Settings", Icon = "cog", Locked = false})
@@ -649,7 +650,7 @@ VisualsTab:Toggle({
 })
 
 AbilitiesManagerTab:Section({
-    Title = "Ability Selector",
+    Title = "Abilities Manager",
     Icon = "blocks",
 })
 
@@ -800,6 +801,290 @@ AbilitiesManagerTab:Button({
 
     end
 })
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local blendTime = 0.2
+local stateMachineConnection = nil
+local activeTracks = { idle = nil, walk = nil, run = nil, current = nil }
+
+local function getChar()
+    return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+end
+
+local function clearStateMachine()
+    if stateMachineConnection then
+        stateMachineConnection:Disconnect()
+        stateMachineConnection = nil
+    end
+end
+
+local function nukeAllTracks(animator)
+    if not animator then return end
+    for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+        track:Stop(0)
+        pcall(function() track:Destroy() end)
+    end
+end
+
+local function setAnims(runId, walkId, idleId)
+    clearStateMachine()
+
+    local char = getChar()
+    if not char then return end
+
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+
+    local animator = hum:FindFirstChildOfClass("Animator") or Instance.new("Animator", hum)
+
+    nukeAllTracks(animator)
+
+    activeTracks.idle    = nil
+    activeTracks.walk    = nil
+    activeTracks.run     = nil
+    activeTracks.current = nil
+
+    local animFolder = char:FindFirstChild("Animations")
+    local deletedCount = 0
+    if animFolder then
+        for _, item in ipairs(animFolder:GetChildren()) do
+            if item:IsA("Animation") then
+                item:Destroy()
+                deletedCount += 1
+            end
+        end
+    end
+
+    if deletedCount > 0 then
+        WindUI:Notify({
+            Title = "Animations",
+            Content = "We have deleted " .. deletedCount .. " animation(s)",
+            Duration = 3,
+            Icon = "trash",
+        })
+    end
+
+    local map = {
+        Sprint       = runId,
+        NormalSprint = runId,
+        OldSprint    = runId,
+        HurtSprint   = runId,
+        Walk         = walkId,
+        OldWalk      = walkId,
+        Idle         = idleId,
+        OldIdle      = idleId,
+    }
+
+    if animFolder then
+        for name, id in pairs(map) do
+            if id then
+                local obj = animFolder:FindFirstChild(name)
+                if obj then
+                    obj.AnimationId = id
+                end
+            end
+        end
+    end
+
+    local function loadFreshTrack(id, priority)
+        if not id or id == "" then return nil end
+        local anim = Instance.new("Animation")
+        anim.AnimationId = id
+ 
+        local ok, track = pcall(function() return animator:LoadAnimation(anim) end)
+        anim:Destroy()
+        if ok and track then
+            if priority then track.Priority = priority end
+            return track
+        end
+        return nil
+    end
+
+    task.wait(0.05)
+
+    activeTracks.idle = loadFreshTrack(idleId, Enum.AnimationPriority.Core)
+    activeTracks.walk = loadFreshTrack(walkId, Enum.AnimationPriority.Movement)
+    activeTracks.run  = loadFreshTrack(runId,  Enum.AnimationPriority.Movement)
+
+    if activeTracks.idle then
+        activeTracks.idle:Play(blendTime)
+        activeTracks.current = activeTracks.idle
+    end
+
+    pcall(function()
+        local scripts = LocalPlayer:FindFirstChild("PlayerScripts")
+        local ca = scripts and scripts:FindFirstChild("ClientAnimations")
+        if ca then
+            ca.Enabled = false
+            task.wait()
+            ca.Enabled = true
+        end
+    end)
+
+    stateMachineConnection = RunService.RenderStepped:Connect(function()
+        local c = LocalPlayer.Character
+        if not c then return end
+        local h = c:FindFirstChildOfClass("Humanoid")
+        if not h or h.Health <= 0 then return end
+
+        local isMoving    = h.MoveDirection.Magnitude > 0.1
+        local isSprinting = h.WalkSpeed > 18
+
+        local newTrack
+        if isMoving and isSprinting then
+            newTrack = activeTracks.run
+        elseif isMoving then
+            newTrack = activeTracks.walk
+        else
+            newTrack = activeTracks.idle
+        end
+
+        if newTrack and newTrack ~= activeTracks.current then
+            if activeTracks.current and activeTracks.current.IsPlaying then
+                activeTracks.current:Stop(blendTime)
+            end
+            if not newTrack.IsPlaying then
+                newTrack:Play(blendTime)
+            end
+            activeTracks.current = newTrack
+        end
+    end)
+
+    WindUI:Notify({
+        Title = "Animations",
+        Content = "Animations applied successfully",
+        Duration = 3,
+        Icon = "circle-check",
+    })
+end
+
+local presets = {
+    Civilian = {
+        Run  = "rbxassetid://137375023685630",
+        Walk = "rbxassetid://84388941697203",
+        Idle = "rbxassetid://100930402371608"
+    },
+    OldCivilian = {
+        Run  = "rbxassetid://79488319304371",
+        Walk = "rbxassetid://138161225743614",
+        Idle = "rbxassetid://74309548749074"
+    },
+    Ghost = {
+        Run  = "rbxassetid://124260679864309",
+        Walk = "rbxassetid://124260679864309",
+        Idle = "rbxassetid://110395159339100"
+    }
+}
+
+AnimationsTab:Section({
+    Title = "Animations",
+    Icon = "play",
+})
+
+AnimationsTab:Button({
+    Title = "Civilian Animations",
+    Callback = function()
+        local p = presets.Civilian
+        setAnims(p.Run, p.Walk, p.Idle)
+    end
+})
+
+AnimationsTab:Button({
+    Title = "Old Civilian Animations",
+    Callback = function()
+        local p = presets.OldCivilian
+        setAnims(p.Run, p.Walk, p.Idle)
+    end
+})
+
+AnimationsTab:Button({
+    Title = "Ghost Animations",
+    Callback = function()
+        local p = presets.Ghost
+        setAnims(p.Run, p.Walk, p.Idle)
+    end
+})
+
+local killerOrder = { "Pursuer", "Badware", "Artful", "Harken", "Killdroid", "Paranoy" }
+
+local function getKillerModels()
+    local list = {}
+    pcall(function()
+        local killerFolder = ReplicatedStorage:WaitForChild("Characters", 5)
+        if killerFolder then
+            killerFolder = killerFolder:WaitForChild("Killer", 5)
+        end
+        if killerFolder then
+            for _, name in ipairs(killerOrder) do
+                local model = killerFolder:FindFirstChild(name)
+                if model then
+                    table.insert(list, model)
+                end
+            end
+        end
+    end)
+    return list
+end
+
+local function getAnimationOptions(killerModel)
+    local out = {}
+    if not killerModel then return out end
+    for _, child in ipairs(killerModel:GetChildren()) do
+        if child:FindFirstChild("Animations") then
+            table.insert(out, child.Name)
+        end
+    end
+    return out
+end
+
+local function getAnimIdFromFolder(animFolder, ...)
+    for _, name in ipairs({...}) do
+        local obj = animFolder:FindFirstChild(name)
+        if obj and obj.AnimationId and obj.AnimationId ~= "" then
+            return obj.AnimationId
+        end
+    end
+    return nil
+end
+
+for _, killer in ipairs(getKillerModels()) do
+    local options = getAnimationOptions(killer)
+
+    if #options > 0 then
+        local selected = options[1]
+
+        AnimationsTab:Dropdown({
+            Title = "Choose " .. killer.Name .. " animations",
+            Values = options,
+            Value = selected,
+            Callback = function(val)
+                selected = val
+            end
+        })
+
+        AnimationsTab:Button({
+            Title = "Apply " .. killer.Name .. " animations",
+            Callback = function()
+                local model = killer:FindFirstChild(selected)
+                if not model then return end
+
+                local animFolder = model:FindFirstChild("Animations")
+                if not animFolder then return end
+
+                local run  = getAnimIdFromFolder(animFolder, "Sprint", "NormalSprint", "OldSprint", "HurtSprint")
+                local walk = getAnimIdFromFolder(animFolder, "Walk", "OldWalk")
+                local idle = getAnimIdFromFolder(animFolder, "Idle", "OldIdle")
+
+                setAnims(run, walk, idle)
+            end
+        })
+    end
+end
 
 AntiTab:Section({
     Title = "Anti",
