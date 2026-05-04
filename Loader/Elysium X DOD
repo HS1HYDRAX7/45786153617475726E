@@ -41,6 +41,7 @@ local VisualsTab = Window:Tab({ Title = "Visuals", Icon = "eye", Locked = false 
 local AbilitiesManagerTab = Window:Tab({ Title = "Abilities Manager", Icon = "blocks", Locked = false })
 local AnimationsTab = Window:Tab({ Title = "Animations", Icon = "play", Locked = false })
 local AntiTab = Window:Tab({ Title = "Anti", Icon = "circle-off", Locked = false })
+local ElysiumPlusTab = Window:Tab({ Title = "Elysium plus", Icon = "dollar-sign", Locked = false })
 local MiscTab = Window:Tab({ Title = "Misc", Icon = "folder", Locked = false })
 local SettingsTab = Window:Tab({ Title = "Settings", Icon = "cog", Locked = false})
 
@@ -1323,6 +1324,103 @@ AntiTab:Toggle({
             scan()
         end
 
+    end
+})
+
+local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
+
+local gamePassId = 1696760402
+local LocalPlayer = Players.LocalPlayer
+local elysiumplus = "https://www.roblox.com/game-pass/1696760402/elysium-plus"
+
+local function hasGamepass()
+    local ok, result = pcall(function()
+        return MarketplaceService:UserOwnsGamePassAsync(LocalPlayer.UserId, gamePassId)
+    end)
+    return ok and result
+end
+
+local function CopyLink()
+    pcall(function()
+        setclipboard(elysiumplus)
+    end)
+end
+
+local elysiumplusUnlocked = hasGamepass()
+
+ElysiumPlusTab:Section({
+    Title = "Elysium Plus",
+    Icon = "dollar-sign",
+})
+
+ElysiumPlusTab:Paragraph({
+    Title = "Elysium Plus",
+    Desc = "Currently, you can only purchase elysium plus through gamepass",
+    Image = "rbxassetid://133894655805201",
+    ImageSize = 80,
+    Locked = false,
+})
+
+ElysiumPlusTab:Space()
+
+ElysiumPlusTab:Button({
+    Title = "Buy elysium plus",
+    Desc = "Unlock exclusive features",
+    Callback = function()
+        if elysiumplusUnlocked then
+            WindUI:Notify({
+                Title = "Elysium plus",
+                Content = "You already own elysium plus",
+                Duration = 3,
+                Icon = "rbxassetid://125746152594286",
+            })
+            return
+        end
+
+        CopyLink()
+
+        WindUI:Notify({
+            Title = "Elysium plus",
+            Content = "Link copied! Paste into your browser to purchase.",
+            Duration = 5,
+            Icon = "rbxassetid://125746152594286",
+        })
+
+        task.spawn(function()
+            for i = 1, 10 do
+                task.wait(3)
+                if hasGamepass() then
+                    elysiumplusUnlocked = true
+                    break
+                end
+            end
+        end)
+    end
+})
+
+ElysiumPlusTab:Space()
+
+local function elysiumplusFeature(callback)
+    if not elysiumplusUnlocked then
+        WindUI:Notify({
+            Title = "Elysium plus",
+            Content = "Unlock elysium plus first",
+            Duration = 3,
+            Icon = "rbxassetid://125746152594286",
+        })
+        return
+    end
+    callback()
+end
+
+ElysiumPlusTab:Button({
+    Title = "Example Feature",
+    Desc = "Elysium+ exclusive",
+    Callback = function()
+        elysiumplusFeature(function()
+            -- l?gica da feature aqui
+        end)
     end
 })
 
