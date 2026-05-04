@@ -8,7 +8,7 @@ local Window = WindUI:CreateWindow({
     Transparent = true,
     Theme = "Crimson",
     NewElements = true,
-    Resizable = false,
+    Resizable = true,
     HideSearchBar = false,
     ScrollBarEnabled = true
 })
