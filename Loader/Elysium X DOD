@@ -645,9 +645,93 @@ VisualsTab:Section({
 })
 
 VisualsTab:Toggle({
+    Title = "Show username",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+        _G.usernameText = state
+
+        local Players = game:GetService("Players")
+        local localPlayer = Players.LocalPlayer
+
+        local function createUsernameLabel(plr)
+            local char = plr.Character
+            if not char then return end
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if not hrp then return end
+            if char:FindFirstChild("U_BB") then return end
+
+            local bb = Instance.new("BillboardGui")
+            bb.Name = "U_BB"
+            bb.Adornee = hrp
+            bb.StudsOffset = Vector3.new(0, 2.5, 0)
+            bb.Size = UDim2.new(0, 100, 0, 20)
+            bb.MaxDistance = 75
+            bb.AlwaysOnTop = true
+            bb.Parent = char
+
+            local label = Instance.new("TextLabel")
+            label.Name = "U_LB"
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.BackgroundTransparency = 1
+            label.TextColor3 = Color3.fromRGB(255, 255, 255)
+            label.TextStrokeTransparency = 0
+            label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            label.Font = Enum.Font.GothamBold
+            label.TextSize = 11
+            label.Text = plr.Name
+            label.Parent = bb
+        end
+
+        local function removeUsernameLabel(char)
+            if not char then return end
+            local b = char:FindFirstChild("U_BB")
+            if b then b:Destroy() end
+        end
+
+        local function cleanup()
+            if _G.usernamePlayerConns then
+                for _, c in ipairs(_G.usernamePlayerConns) do c:Disconnect() end
+                _G.usernamePlayerConns = {}
+            end
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr.Character then removeUsernameLabel(plr.Character) end
+            end
+        end
+
+        if state then
+            cleanup()
+            _G.usernamePlayerConns = {}
+
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr ~= localPlayer then
+                    if plr.Character then createUsernameLabel(plr) end
+                    local c1 = plr.CharacterAdded:Connect(function(char)
+                        task.wait(0.5)
+                        if _G.usernameText then createUsernameLabel(plr) end
+                    end)
+                    table.insert(_G.usernamePlayerConns, c1)
+                end
+            end
+
+            local c2 = Players.PlayerAdded:Connect(function(plr)
+                if plr == localPlayer then return end
+                local c3 = plr.CharacterAdded:Connect(function(char)
+                    task.wait(0.5)
+                    if _G.usernameText then createUsernameLabel(plr) end
+                end)
+                table.insert(_G.usernamePlayerConns, c3)
+            end)
+            table.insert(_G.usernamePlayerConns, c2)
+        else
+            cleanup()
+        end
+    end
+})
+
+VisualsTab:Toggle({
     Title = "Show health",
     Desc = "",
-    Flag = "HealthText",
     Value = false,
     Callback = function(state)
         _G.healthText = state
@@ -756,194 +840,6 @@ VisualsTab:Toggle({
         end
     end
 })
-
-VisualsTab:Toggle({
-    Title = "Show username",
-    Desc = "",
-    Value = false,
-    Callback = function(state)
-        _G.usernameText = state
-
-        local Players = game:GetService("Players")
-        local localPlayer = Players.LocalPlayer
-
-        local function createUsernameLabel(plr)
-            local char = plr.Character
-            if not char then return end
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if not hrp then return end
-            if char:FindFirstChild("U_BB") then return end
-
-            local bb = Instance.new("BillboardGui")
-            bb.Name = "U_BB"
-            bb.Adornee = hrp
-            bb.StudsOffset = Vector3.new(0, 2.5, 0)
-            bb.Size = UDim2.new(0, 100, 0, 20)
-            bb.MaxDistance = 75
-            bb.AlwaysOnTop = true
-            bb.Parent = char
-
-            local label = Instance.new("TextLabel")
-            label.Name = "U_LB"
-            label.Size = UDim2.new(1, 0, 1, 0)
-            label.BackgroundTransparency = 1
-            label.TextColor3 = Color3.fromRGB(255, 255, 255)
-            label.TextStrokeTransparency = 0
-            label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-            label.Font = Enum.Font.GothamBold
-            label.TextSize = 11
-            label.Text = plr.Name
-            label.Parent = bb
-        end
-
-        local function removeUsernameLabel(char)
-            if not char then return end
-            local b = char:FindFirstChild("U_BB")
-            if b then b:Destroy() end
-        end
-
-        local function cleanup()
-            if _G.usernamePlayerConns then
-                for _, c in ipairs(_G.usernamePlayerConns) do c:Disconnect() end
-                _G.usernamePlayerConns = {}
-            end
-            for _, plr in ipairs(Players:GetPlayers()) do
-                if plr.Character then removeUsernameLabel(plr.Character) end
-            end
-        end
-
-        if state then
-            cleanup()
-            _G.usernamePlayerConns = {}
-
-            for _, plr in ipairs(Players:GetPlayers()) do
-                if plr ~= localPlayer then
-                    if plr.Character then createUsernameLabel(plr) end
-                    local c1 = plr.CharacterAdded:Connect(function(char)
-                        task.wait(0.5)
-                        if _G.usernameText then createUsernameLabel(plr) end
-                    end)
-                    table.insert(_G.usernamePlayerConns, c1)
-                end
-            end
-
-            local c2 = Players.PlayerAdded:Connect(function(plr)
-                if plr == localPlayer then return end
-                local c3 = plr.CharacterAdded:Connect(function(char)
-                    task.wait(0.5)
-                    if _G.usernameText then createUsernameLabel(plr) end
-                end)
-                table.insert(_G.usernamePlayerConns, c3)
-            end)
-            table.insert(_G.usernamePlayerConns, c2)
-        else
-            cleanup()
-        end
-    end
-})
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-VisualsTab:Section({
-    Title = "Intro / Special Round Starter",
-    Icon = "loader-circle",
-})
-
-do
-    local specialroundevent = "Double Trouble"
-
-    VisualsTab:Dropdown({
-        Title = "Special Round Event",
-        Values = {"Double Trouble", "Evil Scary", "One Bounce", "Gunslinger", "Dienation", "Mini Brawl"},
-        Value = "Double Trouble",
-        Callback = function(value)
-            specialroundevent = value
-        end
-    })
-
-    VisualsTab:Button({
-        Title = "Start Special Round Event",
-        Callback = function()
-            if not firesignal then return end
-            firesignal(
-                ReplicatedStorage:WaitForChild("Events"):WaitForChild("RemoteEvents"):WaitForChild("GamemodeUI").OnClientEvent,
-                specialroundevent
-            )
-        end
-    })
-end
-
-do
-    local SkinUsername = LocalPlayer.Name
-    local selectedSkin = "Devesto"
-    local skinOptions = {}
-    local skinMapDynamic = {}
-
-    local killerOrder = {"Pursuer", "Badware", "Artful", "Harken", "Killdroid", "Paranoy"}
-
-    pcall(function()
-        local killerFolder = ReplicatedStorage:WaitForChild("Characters", 5)
-        if killerFolder then killerFolder = killerFolder:WaitForChild("Killer", 5) end
-        if not killerFolder then return end
-
-        for _, killerName in ipairs(killerOrder) do
-            local killerModel = killerFolder:FindFirstChild(killerName)
-            if killerModel then
-                for _, child in ipairs(killerModel:GetChildren()) do
-                    if (child:IsA("Model") or child:IsA("Folder")) and not skinMapDynamic[child.Name] then
-                        skinMapDynamic[child.Name] = {killerName, child.Name}
-                        table.insert(skinOptions, child.Name)
-                    end
-                end
-            end
-        end
-    end)
-
-    if #skinOptions == 0 then
-        local fallback = {
-            Devesto  = {"Artful",    "Devesto"},
-            Noliful  = {"Artful",    "Noliful"},
-            Cesus    = {"Harken",    "Cesus"},
-            MeQuot   = {"Pursuer",   "MeQuot"},
-            Thec     = {"Pursuer",   "Thec"},
-            Aeroware = {"Badware",   "Aeroware"},
-            Jetdroid = {"Killdroid", "Jetdroid"},
-        }
-        for k, v in pairs(fallback) do
-            skinMapDynamic[k] = v
-            table.insert(skinOptions, k)
-        end
-        table.sort(skinOptions)
-    end
-
-    selectedSkin = skinOptions[1]
-
-    VisualsTab:Dropdown({
-        Title = "Killer Skin Intro",
-        Values = skinOptions,
-        Value = selectedSkin,
-        Callback = function(value)
-            selectedSkin = value
-        end
-    })
-
-    VisualsTab:Button({
-        Title = "Start Intro",
-        Callback = function()
-            if not firesignal then return end
-            local data = skinMapDynamic[selectedSkin]
-            if not data then return end
-            task.spawn(function()
-                firesignal(
-                    ReplicatedStorage:WaitForChild("Events"):WaitForChild("RemoteEvents"):WaitForChild("KillerIntro").OnClientEvent,
-                    SkinUsername, data[1], data[1], data[2], 1
-                )
-            end)
-        end
-    })
-end
 
 AbilitiesManagerTab:Section({
     Title = "Abilities Manager",
