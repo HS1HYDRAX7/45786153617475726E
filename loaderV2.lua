@@ -14,9 +14,9 @@ local CONFIG = {
     BarHeight       = 10,
     BarPaddingX     = 36,
     BarLerpSpeed    = 0.5,
-    FadeInSpeed     = 0.4,   -- duração do wipe de entrada (estilo DexPlus)
+    FadeInSpeed     = 0.4,   
     FadeOutSpeed    = 0.4,
-    SlideOffset     = 20,    -- px do slide-in do título
+    SlideOffset     = 20,    
 }
 
 local loader      = {}
@@ -58,7 +58,7 @@ local ok = pcall(function() screenGui.Parent = game:GetService("CoreGui") end)
 if not ok then screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui") end
 
 local sound = Instance.new("Sound")
-sound.SoundId = "rbxassetid://18497827791"
+sound.SoundId = "rbxassetid://104900580281389"
 sound.Volume  = 0.5
 sound.Parent  = SoundService
 sound.Ended:Connect(function() sound:Destroy() end)
@@ -69,7 +69,7 @@ container.Position            = UDim2.new(0.5, 0, 0.5, 0)
 container.AnchorPoint         = Vector2.new(0.5, 0.5)
 container.BackgroundColor3    = Color3.fromRGB(18, 8, 8)
 container.BorderSizePixel     = 0
-container.BackgroundTransparency = 0   -- visível desde o início (gradiente cobre)
+container.BackgroundTransparency = 0   
 container.ZIndex              = 3
 container.Parent              = screenGui
 
@@ -99,7 +99,7 @@ grad.Parent   = container
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size               = UDim2.new(1, -CONFIG.BarPaddingX * 2, 0, 28)
-titleLabel.Position           = UDim2.new(0, CONFIG.BarPaddingX - CONFIG.SlideOffset, 0, 10)  -- começa deslocado
+titleLabel.Position           = UDim2.new(0, CONFIG.BarPaddingX - CONFIG.SlideOffset, 0, 10)  
 titleLabel.BackgroundTransparency = 1
 titleLabel.Text               = "Elysium X"
 titleLabel.TextColor3         = Color3.fromRGB(230, 60, 60)
@@ -178,7 +178,6 @@ barGrad.Color = ColorSequence.new{
 }
 barGrad.Parent = barFill
 
--- Shimmer na barra
 local shimmer = Instance.new("Frame")
 shimmer.Size                = UDim2.new(0.25, 0, 1, 0)
 shimmer.Position            = UDim2.new(-0.3, 0, 0, 0)
@@ -320,7 +319,6 @@ function loader:Remove()
 
     local s = CONFIG.FadeOutSpeed
 
-    -- 1. Fade dos elementos de texto/barra — espera terminar antes do wipe
     tw(containerStroke, {Transparency = 1},           s)
     tw(titleLabel,      {TextTransparency = 1},       s)
     tw(statusLabel,     {TextTransparency = 1},       s)
@@ -330,10 +328,8 @@ function loader:Remove()
     tw(barStroke,       {Transparency = 1},           s)
     tw(barFill,         {BackgroundTransparency = 1}, s)
 
-    -- Aguarda o fade dos elementos terminar completamente
     fastwait(s + 0.05)
 
-    -- 2. Wipe de saída (gradiente varre para fora — estilo DexPlus close())
     tweenNumber(100,
         TweenInfo.new(s, Enum.EasingStyle.Back, Enum.EasingDirection.In),
         function(val)
@@ -385,7 +381,7 @@ tw(percentLabel, {TextTransparency=1}, 0.3)
 tw(dotsLabel, {TextTransparency=1}, 0.3)
 task.wait(0.35)
 
-local currentPlace = game.PlaceId          -- roda o script do jogo aqui
+local currentPlace = game.PlaceId          
 for _, v in pairs(getgenv().gamesConfig) do
     if v.placeId == currentPlace then
         loadstring(v.ConfigScript)()
