@@ -2,6 +2,4 @@
 
 > [!WARNING]
 > The games currently available are
-
-> [!WARNING]
-> DIE OF DEATH
+> # DIE OF DEATH
