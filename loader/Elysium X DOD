@@ -1880,12 +1880,12 @@ MiscTab:Slider({
 
 MiscTab:Space()
 
-local HStack1 = MiscTab:HStack()
+local music_controls = MiscTab:HStack()
 
-local VStack1 = HStack1:VStack()
-local VStack2 = HStack1:VStack()
+local msc_VStack = music_controls:VStack()
+local msc_VStack2 = music_controls:VStack()
 
-VStack1:Button({
+msc_VStack:Button({
     Title = "10s",
     Icon = "chevrons-left",
     Callback = function()
@@ -1895,7 +1895,7 @@ VStack1:Button({
     end
 })
 
-VStack2:Button({
+msc_VStack2:Button({
     Title = "10s",
     Icon = "chevrons-right",
     Callback = function()
@@ -1908,7 +1908,7 @@ VStack2:Button({
     end
 })
 
-VStack1:Button({
+msc_VStack:Button({
     Title = "Play",
     Icon = "play",
     Callback = function()
@@ -1918,7 +1918,7 @@ VStack1:Button({
     end
 })
 
-VStack2:Button({
+msc_VStack2:Button({
     Title = "Pause",
     Icon = "pause",
     Callback = function()
