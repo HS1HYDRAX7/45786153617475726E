@@ -49,7 +49,7 @@ local function tw(obj, props, speed, style, dir)
 end
 
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name           = "EXR_LOADER"
+screenGui.Name           = "Vortex_Loader"
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.ResetOnSpawn   = false
 screenGui.DisplayOrder   = 999
@@ -101,7 +101,7 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size               = UDim2.new(1, -CONFIG.BarPaddingX * 2, 0, 28)
 titleLabel.Position           = UDim2.new(0, CONFIG.BarPaddingX - CONFIG.SlideOffset, 0, 10)  
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text               = "Elysium X"
+titleLabel.Text               = "Vortex"
 titleLabel.TextColor3         = Color3.fromRGB(230, 60, 60)
 titleLabel.TextSize           = 20
 titleLabel.Font               = Enum.Font.GothamBold
