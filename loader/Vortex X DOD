@@ -1,10 +1,10 @@
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local Window = WindUI:CreateWindow({
-    Title = "Elysium X Rework",
+    Title = "Vortex",
     Icon = "biohazard",
     Author = "Next Studios",
-    Folder = "Elysium X Rework",
+    Folder = "Vortex",
     Transparent = true,
     Theme = "Crimson",
     NewElements = true,
@@ -22,7 +22,7 @@ Window:Tag({
 })
 
 Window:EditOpenButton({
-    Title = "Elysium X",
+    Title = "Vortex",
     Icon = "shield-cog-corner",
     CornerRadius = UDim.new(0,50),
     StrokeThickness = 1,
@@ -1698,7 +1698,7 @@ MiscTab:Button({
 
 local SoundService = game:GetService("SoundService")
 
-local MusicFolder = "Elysium X Rework/assets/musics"
+local MusicFolder = "Vortex/assets/musics"
 
 if not isfolder(MusicFolder) then
     makefolder(MusicFolder)
