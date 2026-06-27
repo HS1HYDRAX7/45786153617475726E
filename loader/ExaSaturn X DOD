@@ -1,10 +1,10 @@
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local Window = WindUI:CreateWindow({
-    Title = "Vortex",
+    Title = "ExaSaturn",
     Icon = "biohazard",
     Author = "Next Studios",
-    Folder = "Vortex",
+    Folder = "ExaSaturn",
     Transparent = true,
     Theme = "Crimson",
     NewElements = true,
@@ -1698,7 +1698,7 @@ MiscTab:Button({
 
 local SoundService = game:GetService("SoundService")
 
-local MusicFolder = "Vortex/assets/musics"
+local MusicFolder = "ExaSaturn/assets/musics"
 
 if not isfolder(MusicFolder) then
     makefolder(MusicFolder)
