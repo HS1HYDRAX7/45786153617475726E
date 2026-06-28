@@ -1,3 +1,0 @@
-- [tempo](https://sketchfab.com/3d-models/tempo-new-project-turboblast-8d8f02df7b0846babc43edf79687a671)
-- [tempo v2](https://sketchfab.com/3d-models/tempo-sfw-b3fde644ef1344e881f5953ad9fce210)
-- [tempo un-nerfed](https://sketchfab.com/3d-models/tempo-un-nerfed-project-turboblast-e02da35b26b4400cb44bcdd2830fdc49)
