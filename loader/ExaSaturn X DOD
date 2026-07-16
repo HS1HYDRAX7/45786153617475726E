@@ -2,7 +2,7 @@ local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/rel
 
 local Window = WindUI:CreateWindow({
     Title = "ExaSaturn",
-    Icon = "rbxassetid://133089900007559",
+    Icon = "hexagon",
     Author = "Atlas & dekydied",
     Folder = "ExaSaturn",
     Transparent = true,
@@ -22,7 +22,7 @@ Window:Tag({
 })
 
 Window:EditOpenButton({
-    Title = "Vortex",
+    Title = "ExaSaturn",
     Icon = "shield-cog-corner",
     CornerRadius = UDim.new(0,50),
     StrokeThickness = 1,
@@ -54,29 +54,6 @@ MainTab:Paragraph({
 })
 
 MainTab:Space()
-
-MainTab:Paragraph({
-    Title = "Next Studios",
-    Desc = "Links",
-    Thumbnail = "rbxassetid://81706308103426",
-    ThumbnailSize = 85,
-    Locked = false,
-    Buttons = {
-        {
-            Icon = "message-circle",
-            Title = "Discord",
-            Callback = function()
-                setclipboard("https://discord.gg/D97k9TTCq3")
-                WindUI:Notify({
-                    Title = "Discord",
-                    Content = "Invite copied",
-                    Duration = 3,
-                    Icon = "link-2",
-                })
-            end,
-        },
-    }
-})
 
 MainTab:Section({
     Title = "Interface Customization",
