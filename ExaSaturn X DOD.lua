@@ -1,0 +1,2296 @@
+local _version = "1.6.66"
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/download/" .. _version .. "/main.lua"))()
+local Dev = "https://raw.githubusercontent.com/HS1HYDRAX7/45786153617475726E/refs/heads/main/functions/dev.lua"
+
+local Window = WindUI:CreateWindow({
+    Title = "ExaSaturn",
+    Icon = "hexagon",
+    Author = "Atlas",
+    Folder = "ExaSaturn",
+    Transparent = true,
+    Theme = "Crimson",
+    NewElements = true,
+    ElementRadius = 13,
+    Resizable = true,
+    HideSearchBar = false,
+    ScrollBarEnabled = true
+})
+
+Window:SetToggleKey(Enum.KeyCode.G)
+
+Window:Tag({
+    Title = "V0.1",
+    Color = Color3.fromHex("#990000"),
+    Radius = 13,
+})
+
+Window:EditOpenButton({
+    Title = "ExaSaturn",
+    Icon = "shield-cog-corner",
+    CornerRadius = UDim.new(0,50),
+    StrokeThickness = 1,
+    Color = ColorSequence.new(
+        Color3.fromHex("FF0000"),
+        Color3.fromHex("000080")
+    ),
+    OnlyMobile = false,
+    Enabled = true,
+    Draggable = true,
+})
+
+local MainTab = Window:Tab({ Title = "Main", Icon = "star", Locked = false, })
+local MovementTab = Window:Tab({ Title = "Movement", Icon = "chevrons-right", Locked = false, })
+local VisualsTab = Window:Tab({ Title = "Visuals", Icon = "eye", Locked = false, })
+local AbilitiesManagerTab = Window:Tab({ Title = "Abilities Manager", Icon = "blocks", Locked = true, })
+local AnimationsTab = Window:Tab({ Title = "Animations", Icon = "play", Locked = false, })
+local AntiTab = Window:Tab({ Title = "Anti", Icon = "circle-off", Locked = false, })
+local MiscTab = Window:Tab({ Title = "Misc", Icon = "folder", Locked = false, })
+local SettingsTab = Window:Tab({ Title = "Settings", Icon = "cog", Locked = false, })
+local CreditsTab = Window:Tab({ Title = "Credits", Icon = "scroll", Locked = false, })
+
+MainTab:Paragraph({
+    Title = "Open or Minimize UI IN PC",
+    Desc = "PRESS G in your keyboard to open the ui or minimize the ui in pc",
+    Color = "Green",
+    Locked = false,
+})
+
+MainTab:Space()
+
+MainTab:Section({
+    Title = "Interface Customization",
+    Icon = "brush",
+})
+
+MainTab:Dropdown({
+    Title = "Theme",
+    Values = { "Rose","Light","MonokaiPro","Plant","Midnight","CottonCandy","Dark","Indigo","Sky","Crimson","Amber","Violet","Red" },
+    Value = "Crimson",
+    Callback = function(option)
+        WindUI:SetTheme(option)
+    end
+})
+
+MainTab:Toggle({
+    Title = "Transparency",
+    Icon = "palette",
+    Value = true,
+    Callback = function(state)
+        Window:ToggleTransparency(state)
+    end
+})
+
+MainTab:Section({
+    Title = "User Profile",
+    Icon = "shield-user",
+})
+
+MainTab:Toggle({
+    Title = "Profile icon",
+    Desc = "Your profile on your left down",
+    Icon = "user",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        local stateinfo = state
+        if stateinfo then
+            Window.User:Enable()
+        else
+            Window.User:Disable()
+        end
+    end
+})
+
+MainTab:Toggle({
+    Title = "Set profile anonymous",
+    Desc = "Your profile on your left down",
+    Icon = "hat-glasses",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        local stateinfo = state
+        if stateinfo then
+            Window.User:SetAnonymous(true)
+        else
+            Window.User:SetAnonymous(false)
+        end
+    end
+})
+
+MovementTab:Section({
+    Title = "Movement",
+    Icon = "chevrons-right",
+})
+
+MovementTab:Toggle({
+    Title = "FrontFlip",
+    Desc = "",
+    Value = true,
+    Callback = function(state)
+        FrontFlip(state)
+    end
+})
+
+MovementTab:Toggle({
+    Title = "Infinite stamina",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local player = game:GetService("Players").LocalPlayer
+
+        _G.infStamina = state
+
+        local function getModule()
+            local gui = player:FindFirstChild("PlayerGui")
+            if not gui then return end
+
+            local main = gui:FindFirstChild("MainGui")
+            if not main then return end
+
+            local client = main:FindFirstChild("Client")
+            if not client then return end
+
+            local modules = client:FindFirstChild("Modules")
+            if not modules then return end
+
+            local movement = modules:FindFirstChild("Movement")
+            if not movement then return end
+
+            return require(movement)
+        end
+
+        if state then
+
+            local staminaM = getModule()
+            if staminaM then
+
+                _G.stamConn = game:GetService("RunService").Heartbeat:Connect(function()
+                    if _G.infStamina then
+                        staminaM.Stamina = staminaM.MaxStamina
+                    end
+                end)
+
+            end
+
+        else
+
+            if _G.stamConn then
+                _G.stamConn:Disconnect()
+                _G.stamConn = nil
+            end
+
+        end
+
+    end
+})
+
+MovementTab:Toggle({
+    Title = "Sprint boost",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local player = game:GetService("Players").LocalPlayer
+
+        _G.sprintEnabled = state
+        _G.sprintValue = _G.sprintValue or 5
+
+        local function getCharacter()
+            for _,v in ipairs(workspace:GetDescendants()) do
+                if v:IsA("Model") and v.Name == player.Name then
+                    return v
+                end
+            end
+        end
+
+        local function apply(char)
+            if not char then return end
+            if char:GetAttribute("WalkSpeedModifier") == nil then return end
+
+            if _G.sprintEnabled then
+                if char:GetAttribute("WalkSpeedModifier") ~= _G.sprintValue then
+                    char:SetAttribute("WalkSpeedModifier", _G.sprintValue)
+                end
+            else
+                if char:GetAttribute("WalkSpeedModifier") ~= 0 then
+                    char:SetAttribute("WalkSpeedModifier", 0)
+                end
+            end
+        end
+
+        local function hookAttribute(char)
+            if not char then return end
+
+            if _G.sprintAttrChangeConn then
+                _G.sprintAttrChangeConn:Disconnect()
+            end
+
+            _G.sprintAttrChangeConn = char:GetAttributeChangedSignal("WalkSpeedModifier"):Connect(function()
+                if not _G.sprintEnabled then return end
+
+                local current = char:GetAttribute("WalkSpeedModifier")
+                if current ~= _G.sprintValue then
+                    char:SetAttribute("WalkSpeedModifier", _G.sprintValue)
+                end
+            end)
+        end
+
+        if state then
+
+            local char = getCharacter()
+            apply(char)
+            hookAttribute(char)
+
+            _G.sprintCharConn = player.CharacterAdded:Connect(function()
+                task.wait(0.5)
+                local newChar = getCharacter()
+                apply(newChar)
+                hookAttribute(newChar)
+            end)
+
+            _G.sprintDescConn = workspace.DescendantAdded:Connect(function(v)
+                if v:IsA("Model") and v.Name == player.Name then
+                    task.wait(0.2)
+                    apply(v)
+                    hookAttribute(v)
+                end
+            end)
+
+        else
+
+            local char = getCharacter()
+            apply(char)
+
+            if _G.sprintCharConn then
+                _G.sprintCharConn:Disconnect()
+                _G.sprintCharConn = nil
+            end
+
+            if _G.sprintDescConn then
+                _G.sprintDescConn:Disconnect()
+                _G.sprintDescConn = nil
+            end
+
+            if _G.sprintAttrChangeConn then
+                _G.sprintAttrChangeConn:Disconnect()
+                _G.sprintAttrChangeConn = nil
+            end
+
+        end
+
+    end
+})
+
+MovementTab:Slider({
+    Title = "Sprint boost value",
+    Desc = "",
+    Step = 1,
+    Value = {
+        Min = 1,
+        Max = 100,
+        Default = 5,
+    },
+    Callback = function(value)
+
+        _G.sprintValue = value
+
+        if _G.sprintEnabled then
+            local player = game:GetService("Players").LocalPlayer
+
+            for _,v in ipairs(workspace:GetDescendants()) do
+                if v:IsA("Model") and v.Name == player.Name then
+                    if v:GetAttribute("WalkSpeedModifier") ~= nil then
+                        v:SetAttribute("WalkSpeedModifier", value)
+                    end
+                    break
+                end
+            end
+        end
+
+    end
+})
+
+VisualsTab:Section({
+    Title = "Visuals",
+    Icon = "eye",
+})
+
+VisualsTab:Toggle({
+    Title = "Killer ESP",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        local teams = workspace:FindFirstChild("GameAssets")
+        teams = teams and teams:FindFirstChild("Teams")
+        local killers = teams and teams:FindFirstChild("Killer")
+        if not killers then return end
+
+        _G.killerESP = state
+        _G.killerColor = _G.killerColor or Color3.fromRGB(128,0,32)
+
+        local function isLocal(v)
+            return LocalPlayer.Character and v == LocalPlayer.Character
+        end
+
+        local function createESP(v)
+            if v:IsA("Model") and not isLocal(v) and not v:FindFirstChild("HIGHLIGHT") then
+                local h = Instance.new("Highlight")
+                h.Name = "HIGHLIGHT"
+                h.FillColor = _G.killerColor
+                h.OutlineColor = _G.killerColor
+                h.Adornee = v
+                h.Parent = v
+            end
+        end
+
+        if state then
+            for _,v in ipairs(killers:GetChildren()) do
+                createESP(v)
+            end
+
+            _G.killerAdd = killers.ChildAdded:Connect(function(v)
+                if not _G.killerESP then return end
+                createESP(v)
+            end)
+
+            _G.killerRemove = killers.ChildRemoved:Connect(function(v)
+                local h = v:FindFirstChild("HIGHLIGHT")
+                if h then h:Destroy() end
+            end)
+        else
+            if _G.killerAdd then _G.killerAdd:Disconnect() _G.killerAdd = nil end
+            if _G.killerRemove then _G.killerRemove:Disconnect() _G.killerRemove = nil end
+
+            for _,v in ipairs(killers:GetChildren()) do
+                local h = v:FindFirstChild("HIGHLIGHT")
+                if h then h:Destroy() end
+            end
+        end
+    end
+})
+
+VisualsTab:Colorpicker({
+    Title = "ESP Color",
+    Desc = "",
+    Default = Color3.fromRGB(128,0,32),
+    Transparency = 0,
+    Locked = false,
+    Callback = function(color)
+
+        _G.killerColor = color
+
+        local teams = workspace:FindFirstChild("GameAssets")
+        teams = teams and teams:FindFirstChild("Teams")
+        local killers = teams and teams:FindFirstChild("Killer")
+        if not killers then return end
+
+        for _,v in ipairs(killers:GetChildren()) do
+            local h = v:FindFirstChild("HIGHLIGHT")
+            if h then
+                h.FillColor = color
+                h.OutlineColor = color
+            end
+        end
+
+    end
+})
+
+VisualsTab:Toggle({
+    Title = "Survivor ESP",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        local teams = workspace:FindFirstChild("GameAssets")
+        teams = teams and teams:FindFirstChild("Teams")
+        local survivors = teams and teams:FindFirstChild("Survivor")
+        if not survivors then return end
+
+        _G.survivorESP = state
+        _G.survivorColor = _G.survivorColor or Color3.fromRGB(0,100,0)
+
+        local function isLocal(v)
+            return LocalPlayer.Character and v == LocalPlayer.Character
+        end
+
+        local function createESP(v)
+            if v:IsA("Model") and not isLocal(v) and not v:FindFirstChild("HIGHLIGHT") then
+                local h = Instance.new("Highlight")
+                h.Name = "HIGHLIGHT"
+                h.FillColor = _G.survivorColor
+                h.OutlineColor = _G.survivorColor
+                h.Adornee = v
+                h.Parent = v
+            end
+        end
+
+        if state then
+            for _,v in ipairs(survivors:GetChildren()) do
+                createESP(v)
+            end
+
+            _G.survivorAdd = survivors.ChildAdded:Connect(function(v)
+                if not _G.survivorESP then return end
+                createESP(v)
+            end)
+
+            _G.survivorRemove = survivors.ChildRemoved:Connect(function(v)
+                local h = v:FindFirstChild("HIGHLIGHT")
+                if h then h:Destroy() end
+            end)
+        else
+            if _G.survivorAdd then _G.survivorAdd:Disconnect() _G.survivorAdd = nil end
+            if _G.survivorRemove then _G.survivorRemove:Disconnect() _G.survivorRemove = nil end
+
+            for _,v in ipairs(survivors:GetChildren()) do
+                local h = v:FindFirstChild("HIGHLIGHT")
+                if h then h:Destroy() end
+            end
+        end
+    end
+})
+
+VisualsTab:Colorpicker({
+    Title = "ESP Color",
+    Desc = "",
+    Default = Color3.fromRGB(0,100,0),
+    Transparency = 0,
+    Locked = false,
+    Callback = function(color)
+
+        _G.survivorColor = color
+
+        local teams = workspace:FindFirstChild("GameAssets")
+        teams = teams and teams:FindFirstChild("Teams")
+        local survivors = teams and teams:FindFirstChild("Survivor")
+        if not survivors then return end
+
+        for _,v in ipairs(survivors:GetChildren()) do
+            local h = v:FindFirstChild("HIGHLIGHT")
+            if h then
+                h.FillColor = color
+                h.OutlineColor = color
+            end
+        end
+
+    end
+})
+
+VisualsTab:Toggle({
+    Title = "Ghost ESP",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        local teams = workspace:FindFirstChild("GameAssets")
+        teams = teams and teams:FindFirstChild("Teams")
+        local ghosts = teams and teams:FindFirstChild("Ghost")
+        if not ghosts then return end
+
+        _G.ghostESP = state
+        _G.ghostColor = _G.ghostColor or Color3.fromRGB(255,255,255)
+
+        local function isLocal(v)
+            return LocalPlayer.Character and v == LocalPlayer.Character
+        end
+
+        local function createESP(v)
+            if v:IsA("Model") and not isLocal(v) and not v:FindFirstChild("HIGHLIGHT") then
+                local h = Instance.new("Highlight")
+                h.Name = "HIGHLIGHT"
+                h.FillColor = _G.ghostColor
+                h.OutlineColor = _G.ghostColor
+                h.Adornee = v
+                h.Parent = v
+            end
+        end
+
+        if state then
+            for _,v in ipairs(ghosts:GetChildren()) do
+                createESP(v)
+            end
+
+            _G.ghostAdd = ghosts.ChildAdded:Connect(function(v)
+                if not _G.ghostESP then return end
+                createESP(v)
+            end)
+
+            _G.ghostRemove = ghosts.ChildRemoved:Connect(function(v)
+                local h = v:FindFirstChild("HIGHLIGHT")
+                if h then h:Destroy() end
+            end)
+        else
+            if _G.ghostAdd then _G.ghostAdd:Disconnect() _G.ghostAdd = nil end
+            if _G.ghostRemove then _G.ghostRemove:Disconnect() _G.ghostRemove = nil end
+
+            for _,v in ipairs(ghosts:GetChildren()) do
+                local h = v:FindFirstChild("HIGHLIGHT")
+                if h then h:Destroy() end
+            end
+        end
+    end
+})
+
+VisualsTab:Colorpicker({
+    Title = "ESP Color",
+    Desc = "",
+    Default = Color3.fromRGB(255,255,255),
+    Transparency = 0,
+    Locked = false,
+    Callback = function(color)
+
+        _G.ghostColor = color
+
+        local teams = workspace:FindFirstChild("GameAssets")
+        teams = teams and teams:FindFirstChild("Teams")
+        local ghosts = teams and teams:FindFirstChild("Ghost")
+        if not ghosts then return end
+
+        for _,v in ipairs(ghosts:GetChildren()) do
+            local h = v:FindFirstChild("HIGHLIGHT")
+            if h then
+                h.FillColor = color
+                h.OutlineColor = color
+            end
+        end
+
+    end
+})
+
+VisualsTab:Section({
+    Title = "Advanced Visuals",
+    Icon = "eye",
+})
+
+VisualsTab:Toggle({
+    Title = "Show username",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+        _G.usernameText = state
+
+        local Players = game:GetService("Players")
+        local localPlayer = Players.LocalPlayer
+
+        local function createUsernameLabel(plr)
+            local char = plr.Character
+            if not char then return end
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if not hrp then return end
+            if char:FindFirstChild("U_BB") then return end
+
+            local bb = Instance.new("BillboardGui")
+            bb.Name = "U_BB"
+            bb.Adornee = hrp
+            bb.StudsOffset = Vector3.new(0, 2.5, 0)
+            bb.Size = UDim2.new(0, 100, 0, 20)
+            bb.MaxDistance = 75
+            bb.AlwaysOnTop = true
+            bb.Parent = char
+
+            local label = Instance.new("TextLabel")
+            label.Name = "U_LB"
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.BackgroundTransparency = 1
+            label.TextColor3 = Color3.fromRGB(255, 255, 255)
+            label.TextStrokeTransparency = 0
+            label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            label.Font = Enum.Font.GothamBold
+            label.TextSize = 11
+            label.Text = plr.Name
+            label.Parent = bb
+        end
+
+        local function removeUsernameLabel(char)
+            if not char then return end
+            local b = char:FindFirstChild("U_BB")
+            if b then b:Destroy() end
+        end
+
+        local function cleanup()
+            if _G.usernamePlayerConns then
+                for _, c in ipairs(_G.usernamePlayerConns) do c:Disconnect() end
+                _G.usernamePlayerConns = {}
+            end
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr.Character then removeUsernameLabel(plr.Character) end
+            end
+        end
+
+        if state then
+            cleanup()
+            _G.usernamePlayerConns = {}
+
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr ~= localPlayer then
+                    if plr.Character then createUsernameLabel(plr) end
+                    local c1 = plr.CharacterAdded:Connect(function(char)
+                        task.wait(0.5)
+                        if _G.usernameText then createUsernameLabel(plr) end
+                    end)
+                    table.insert(_G.usernamePlayerConns, c1)
+                end
+            end
+
+            local c2 = Players.PlayerAdded:Connect(function(plr)
+                if plr == localPlayer then return end
+                local c3 = plr.CharacterAdded:Connect(function(char)
+                    task.wait(0.5)
+                    if _G.usernameText then createUsernameLabel(plr) end
+                end)
+                table.insert(_G.usernamePlayerConns, c3)
+            end)
+            table.insert(_G.usernamePlayerConns, c2)
+        else
+            cleanup()
+        end
+    end
+})
+
+VisualsTab:Toggle({
+    Title = "Show health",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+        _G.healthText = state
+
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local localPlayer = Players.LocalPlayer
+        local camera = workspace.CurrentCamera
+
+        local function createHealthLabel(char)
+            if not char then return end
+            local humanoid = char:FindFirstChildOfClass("Humanoid")
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if not humanoid or not hrp then return end
+            if char:FindFirstChild("H_BB") then return end
+
+            local bb = Instance.new("BillboardGui")
+            bb.Name = "H_BB"
+            bb.Adornee = hrp
+            bb.StudsOffset = Vector3.new(0, -2.5, 0)
+            bb.Size = UDim2.new(0, 80, 0, 20)
+            bb.MaxDistance = 75
+            bb.AlwaysOnTop = true
+            bb.Parent = char
+
+            local label = Instance.new("TextLabel")
+            label.Name = "H_LB"
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.BackgroundTransparency = 1
+            label.TextColor3 = Color3.fromRGB(255, 255, 255)
+            label.TextStrokeTransparency = 0
+            label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            label.Font = Enum.Font.GothamBold
+            label.TextSize = 11
+            label.Parent = bb
+
+            _G.healthConns = _G.healthConns or {}
+
+            local conn = RunService.Heartbeat:Connect(function()
+                if not _G.healthText or not char.Parent then
+                    local b = char:FindFirstChild("H_BB")
+                    if b then b:Destroy() end
+                    return
+                end
+                local hp = math.floor(humanoid.Health)
+                local maxHp = math.floor(humanoid.MaxHealth)
+                label.Text = "HP: " .. hp .. " / " .. maxHp
+
+                local ratio = hp / maxHp
+                label.TextColor3 = Color3.fromRGB(
+                    math.floor(255 * (1 - ratio)),
+                    math.floor(255 * ratio),
+                    0
+                )
+            end)
+
+            table.insert(_G.healthConns, conn)
+        end
+
+        local function removeHealthLabel(char)
+            if not char then return end
+            local b = char:FindFirstChild("H_BB")
+            if b then b:Destroy() end
+        end
+
+        local function cleanup()
+            if _G.healthConns then
+                for _, c in ipairs(_G.healthConns) do c:Disconnect() end
+                _G.healthConns = {}
+            end
+            if _G.healthPlayerConns then
+                for _, c in ipairs(_G.healthPlayerConns) do c:Disconnect() end
+                _G.healthPlayerConns = {}
+            end
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr.Character then removeHealthLabel(plr.Character) end
+            end
+        end
+
+        if state then
+            cleanup()
+            _G.healthPlayerConns = {}
+
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr ~= localPlayer then
+                    if plr.Character then createHealthLabel(plr.Character) end
+                    local c1 = plr.CharacterAdded:Connect(function(char)
+                        task.wait(0.5)
+                        if _G.healthText then createHealthLabel(char) end
+                    end)
+                    table.insert(_G.healthPlayerConns, c1)
+                end
+            end
+
+            local c2 = Players.PlayerAdded:Connect(function(plr)
+                if plr == localPlayer then return end
+                local c3 = plr.CharacterAdded:Connect(function(char)
+                    task.wait(0.5)
+                    if _G.healthText then createHealthLabel(char) end
+                end)
+                table.insert(_G.healthPlayerConns, c3)
+            end)
+            table.insert(_G.healthPlayerConns, c2)
+        else
+            cleanup()
+        end
+    end
+})
+
+AbilitiesManagerTab:Section({
+    Title = "Abilities Manager",
+    Icon = "blocks",
+})
+
+AbilitiesManagerTab:Dropdown({
+    Title = "Select ability 1",
+    Desc = "",
+    Values = { "None","Adrenaline","Punch","Caretaker","Cloak","Block","Dash","BonusPad","Hotdog","Revolver","Taunt","Banana" },
+    Value = "None",
+    Callback = function(option)
+        _G._skill1 = option
+    end
+})
+
+AbilitiesManagerTab:Dropdown({
+    Title = "Select ability 2",
+    Desc = "",
+    Values = { "None","Adrenaline","Punch","Caretaker","Cloak","Block","Dash","BonusPad","Hotdog","Revolver","Taunt","Banana" },
+    Value = "None",
+    Callback = function(option)
+        _G._skill2 = option
+    end
+})
+
+AbilitiesManagerTab:Button({
+    Title = "Choose abilities",
+    Desc = "",
+    Callback = function()
+
+        local AbilityData = {
+["Adrenaline"]={Name="Adrenaline",InputShown="",Tip="Get a temporary speed boost for 6 seconds, highlighting you to your teamates and slowing you down after it\'s over.",Cooldown=35,Icon="rbxassetid://116399911657417",DisplayName="Adrenaline"},
+["Punch"]={Name="Punch",InputShown="",Tip="Swing foward stunning any killers hit for 3 seconds, if missed you\'ll get severe endlag.",Cooldown=40,Icon="rbxassetid://97428323453639",DisplayName="Punch"},
+["Caretaker"]={Name="Caretaker",InputShown="",Tip="Splash a potion infront of you, any survivors hit will heal 20 HP in total. Having this ability makes you lose 75 max health though!",Cooldown=30,Icon="rbxassetid://90712805517714",DisplayName="Caretaker"},
+["Cloak"]={Name="Cloak",InputShown="",Tip="Becoming heavily slowed but invisible for a short amount of time, Killers can still hit you though!",Cooldown=50,Icon="rbxassetid://90476367580326",DisplayName="Cloak"},
+["Block"]={Name="Block",InputShown="",Tip="Try blocking any form of damage, if successful heal 10 HP, get a speed boost and negate all the damage.",Cooldown=40,Icon="rbxassetid://120929805037270",DisplayName="Block"},
+["Dash"]={Name="Dash",InputShown="",Tip="Dash foward, after you will get fatigue for 2 seconds which slows stamina regeneration and makes it drain faster.",Cooldown=20,Icon="rbxassetid://73777691791017",DisplayName="Dash"},
+["BonusPad"]={Name="BonusPad",InputShown="",Tip="Build a temporary speed pad that speeds up any survivor who steps on it. Having this ability makes you lose 10 max health though!",Cooldown=70,Icon="rbxassetid://86775625332300",DisplayName="BonusPad"},
+["Hotdog"]={Name="Hotdog",InputShown="",Tip="Eat a hotdog, healing 15 HP at the cost of 10 stamina.",Cooldown=15,Icon="rbxassetid://134322360499381",DisplayName="Hotdog"},
+["Revolver"]={Name="Revolver",InputShown="",Tip="Shoot with your revolver stunning any killers hit for 2 seconds, you\'ll have to reload after. Having this ability makes you lose 20 max stamina though!",Cooldown=15,Icon="rbxassetid://107624957891469",DisplayName="Revolver"},
+["Taunt"]={Name="Taunt",InputShown="",Tip="Taunt the killer gaining a forcefield, highlighting the killer, and slowing them down for 5 seconds or until you\'re hit for the duration of the effect (1.25x damage).",Cooldown=25,Icon="rbxassetid://85436299122876",DisplayName="Taunt"},
+["Banana"]={Name="Banana",InputShown="",Tip="Toss a banana onto the floor, if the killer or the civilian who made it touch the banana, they will slip and be briefly stunned, the banana will naturally decay over time.",Cooldown=20,Icon="rbxassetid://96202444819611",DisplayName="Banana Peel"},
+        }
+
+        local abilities = {}
+
+        if _G._skill1 and _G._skill1 ~= "None" then
+            table.insert(abilities, tostring(_G._skill1))
+        end
+
+        if _G._skill2 and _G._skill2 ~= "None" then
+            table.insert(abilities, tostring(_G._skill2))
+        end
+
+        if #abilities == 0 then return end
+        if TestRequire and TestRequire() ~= true then return end
+
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("Events")
+            :WaitForChild("RemoteEvents")
+            :WaitForChild("AbilitySelection")
+            :FireServer(abilities)
+
+        local AbilityModule
+        pcall(function()
+            AbilityModule = require(game:GetService("Players").LocalPlayer
+                :WaitForChild("PlayerGui")
+                :WaitForChild("MainGui")
+                :WaitForChild("Client")
+                :WaitForChild("Modules")
+                :WaitForChild("Ability"))
+        end)
+
+        if AbilityModule then
+            for _,a in ipairs(abilities) do
+                AbilityModule.CreateAbility(AbilityData[a])
+            end
+        end
+
+    end
+})
+
+AbilitiesManagerTab:Button({
+    Title = "Give all abilities",
+    Desc = "",
+    Callback = function()
+
+        local Abilities_Table = {
+            "Cloak",
+            "Punch",
+            "Taunt",
+            "BonusPad",
+            "Block",
+            "Caretaker",
+            "Dash",
+            "Hotdog",
+            "Revolver",
+            "Adrenaline",
+            "Banana"
+        }
+
+        local AbilityData = {
+["Adrenaline"]={Name="Adrenaline",InputShown="",Tip="Get a temporary speed boost for 6 seconds, highlighting you to your teamates and slowing you down after it\'s over.",Cooldown=35,Icon="rbxassetid://116399911657417",DisplayName="Adrenaline"},
+["Punch"]={Name="Punch",InputShown="",Tip="Swing foward stunning any killers hit for 3 seconds, if missed you\'ll get severe endlag.",Cooldown=40,Icon="rbxassetid://97428323453639",DisplayName="Punch"},
+["Caretaker"]={Name="Caretaker",InputShown="",Tip="Splash a potion infront of you, any survivors hit will heal 20 HP in total. Having this ability makes you lose 75 max health though!",Cooldown=30,Icon="rbxassetid://90712805517714",DisplayName="Caretaker"},
+["Cloak"]={Name="Cloak",InputShown="",Tip="Becoming heavily slowed but invisible for a short amount of time, Killers can still hit you though!",Cooldown=50,Icon="rbxassetid://90476367580326",DisplayName="Cloak"},
+["Block"]={Name="Block",InputShown="",Tip="Try blocking any form of damage, if successful heal 10 HP, get a speed boost and negate all the damage.",Cooldown=40,Icon="rbxassetid://120929805037270",DisplayName="Block"},
+["Dash"]={Name="Dash",InputShown="",Tip="Dash foward, after you will get fatigue for 2 seconds which slows stamina regeneration and makes it drain faster.",Cooldown=20,Icon="rbxassetid://73777691791017",DisplayName="Dash"},
+["BonusPad"]={Name="BonusPad",InputShown="",Tip="Build a temporary speed pad that speeds up any survivor who steps on it. Having this ability makes you lose 10 max health though!",Cooldown=70,Icon="rbxassetid://86775625332300",DisplayName="BonusPad"},
+["Hotdog"]={Name="Hotdog",InputShown="",Tip="Eat a hotdog, healing 15 HP at the cost of 10 stamina.",Cooldown=15,Icon="rbxassetid://134322360499381",DisplayName="Hotdog"},
+["Revolver"]={Name="Revolver",InputShown="",Tip="Shoot with your revolver stunning any killers hit for 2 seconds, you\'ll have to reload after. Having this ability makes you lose 20 max stamina though!",Cooldown=15,Icon="rbxassetid://107624957891469",DisplayName="Revolver"},
+["Taunt"]={Name="Taunt",InputShown="",Tip="Taunt the killer gaining a forcefield, highlighting the killer, and slowing them down for 5 seconds or until you\'re hit for the duration of the effect (1.25x damage).",Cooldown=25,Icon="rbxassetid://85436299122876",DisplayName="Taunt"},
+["Banana"]={Name="Banana",InputShown="",Tip="Toss a banana onto the floor, if the killer or the civilian who made it touch the banana, they will slip and be briefly stunned, the banana will naturally decay over time.",Cooldown=20,Icon="rbxassetid://96202444819611",DisplayName="Banana Peel"},
+        }
+
+        local function ReturnAbilityData(a)
+            return AbilityData[a]
+        end
+
+        if TestRequire and TestRequire() ~= true then return end
+
+        local Remote = game:GetService("ReplicatedStorage")
+            :WaitForChild("Events")
+            :WaitForChild("RemoteEvents")
+            :WaitForChild("AbilitySelection")
+
+        local AbilityModule
+        pcall(function()
+            AbilityModule = require(game:GetService("Players").LocalPlayer
+                :WaitForChild("PlayerGui")
+                :WaitForChild("MainGui")
+                :WaitForChild("Client")
+                :WaitForChild("Modules")
+                :WaitForChild("Ability"))
+        end)
+
+        Remote:FireServer(unpack({{tostring("Adrenaline"), tostring("Adrenaline")}}))
+        task.wait(0.2)
+
+        for _,ability in ipairs(Abilities_Table) do
+
+            Remote:FireServer(unpack({{tostring(ability)}}))
+
+            if AbilityModule then
+                AbilityModule.CreateAbility(ReturnAbilityData(ability))
+            end
+
+            task.wait(0.1)
+        end
+
+    end
+})
+
+AbilitiesManagerTab:Section({
+    Title = "Auto block",
+})
+
+AbilitiesManagerTab:Toggle({
+    Title = "Auto block",
+    Desc = "",
+    Value = false,
+    Locked = true,
+    Callback = function(state)
+
+        _G.AutoBlockEnabled = state
+        _G.AutoBlockRange = _G.AutoBlockRange or 10
+        _G.AutoBlockConnections = _G.AutoBlockConnections or {}
+
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+        local LocalPlayer = Players.LocalPlayer
+
+        local KillerTeam = workspace:WaitForChild("GameAssets")
+            :WaitForChild("Teams")
+            :WaitForChild("Killer")
+
+        local UseAbility = ReplicatedStorage
+            :WaitForChild("Events")
+            :WaitForChild("RemoteFunctions")
+            :WaitForChild("UseAbility")
+
+        local function DisconnectAll()
+            if _G.AutoBlockKillerAdded then
+                _G.AutoBlockKillerAdded:Disconnect()
+                _G.AutoBlockKillerAdded = nil
+            end
+
+            for _,tbl in pairs(_G.AutoBlockConnections) do
+                for _,conn in pairs(tbl) do
+                    pcall(function()
+                        conn:Disconnect()
+                    end)
+                end
+            end
+
+            table.clear(_G.AutoBlockConnections)
+        end
+
+        DisconnectAll()
+
+        if not state then
+            return
+        end
+
+        local function TryBlock(killerHRP)
+            if not _G.AutoBlockEnabled then return end
+
+            local Character = LocalPlayer.Character
+            if not Character then return end
+
+            local HRP = Character:FindFirstChild("HumanoidRootPart")
+            if not HRP then return end
+
+            local distance = (killerHRP.Position - HRP.Position).Magnitude
+            if distance > tonumber(_G.AutoBlockRange) then
+                return
+            end
+
+            local direction = ((HRP.Position - killerHRP.Position) * Vector3.new(1,0,1)).Unit
+            local look = (killerHRP.CFrame.LookVector * Vector3.new(1,0,1)).Unit
+
+            if look:Dot(direction) <= 0.75 then
+                return
+            end
+
+            pcall(function()
+                UseAbility:InvokeServer("Block")
+            end)
+        end
+
+        local function HookKiller(killer)
+            if not killer:IsA("Model") then
+                return
+            end
+
+            if _G.AutoBlockConnections[killer] then
+                return
+            end
+
+            local connections = {}
+            _G.AutoBlockConnections[killer] = connections
+
+            local hrp = killer:WaitForChild("HumanoidRootPart",5)
+            if not hrp then
+                return
+            end
+
+            local function HookSwing(sound)
+                if not sound or not sound:IsA("Sound") then
+                    return
+                end
+
+                local lastState = false
+
+                local hb = RunService.Heartbeat:Connect(function()
+                    if not _G.AutoBlockEnabled then return end
+
+                    local playing = sound.IsPlaying
+
+                    if playing and not lastState then
+                        TryBlock(hrp)
+                    end
+
+                    lastState = playing
+                end)
+
+                table.insert(connections,hb)
+
+                local playedConn = sound.Played:Connect(function()
+                    TryBlock(hrp)
+                end)
+
+                table.insert(connections,playedConn)
+            end
+
+            local existingSwing = hrp:FindFirstChild("Swing")
+            if existingSwing then
+                HookSwing(existingSwing)
+            end
+
+            local childConn = hrp.ChildAdded:Connect(function(child)
+                if child.Name == "Swing" and child:IsA("Sound") then
+                    HookSwing(child)
+                end
+            end)
+
+            table.insert(connections,childConn)
+
+            local removingConn
+            removingConn = killer.AncestryChanged:Connect(function(_,parent)
+                if parent then return end
+
+                if _G.AutoBlockConnections[killer] then
+                    for _,conn in pairs(_G.AutoBlockConnections[killer]) do
+                        pcall(function()
+                            conn:Disconnect()
+                        end)
+                    end
+
+                    _G.AutoBlockConnections[killer] = nil
+                end
+
+                if removingConn then
+                    removingConn:Disconnect()
+                end
+            end)
+
+            table.insert(connections,removingConn)
+        end
+
+        for _,killer in ipairs(KillerTeam:GetChildren()) do
+            task.spawn(HookKiller,killer)
+        end
+
+        _G.AutoBlockKillerAdded = KillerTeam.ChildAdded:Connect(function(killer)
+            if _G.AutoBlockEnabled then
+                task.spawn(HookKiller,killer)
+            end
+        end)
+
+    end
+})
+
+AbilitiesManagerTab:Input({
+    Title = "Detection range",
+    Desc = "",
+    Value = "10",
+    Locked = true,
+    Placeholder = "Placeholder",
+    Callback = function(input)
+
+        local value = tonumber(input)
+
+        if value then
+            _G.AutoBlockRange = value
+        end
+
+    end
+})
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local blendTime = 0.2
+local stateMachineConnection = nil
+local activeTracks = { idle = nil, walk = nil, run = nil, current = nil }
+
+local function getChar()
+    return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+end
+
+local function clearStateMachine()
+    if stateMachineConnection then
+        stateMachineConnection:Disconnect()
+        stateMachineConnection = nil
+    end
+end
+
+local function nukeAllTracks(animator)
+    if not animator then return end
+    for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+        track:Stop(0)
+        pcall(function() track:Destroy() end)
+    end
+end
+
+local function setAnims(runId, walkId, idleId)
+    clearStateMachine()
+
+    local char = getChar()
+    if not char then return end
+
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+
+    local animator = hum:FindFirstChildOfClass("Animator") or Instance.new("Animator", hum)
+
+    nukeAllTracks(animator)
+
+    activeTracks.idle    = nil
+    activeTracks.walk    = nil
+    activeTracks.run     = nil
+    activeTracks.current = nil
+
+    local animFolder = char:FindFirstChild("Animations")
+    local deletedCount = 0
+    if animFolder then
+        for _, item in ipairs(animFolder:GetChildren()) do
+            if item:IsA("Animation") then
+                item:Destroy()
+                deletedCount += 1
+            end
+        end
+    end
+
+    if deletedCount > 0 then
+        WindUI:Notify({
+            Title = "Animations",
+            Content = "We have deleted " .. deletedCount .. " animation(s)",
+            Duration = 3,
+            Icon = "trash",
+        })
+    end
+
+    local map = {
+        Sprint       = runId,
+        NormalSprint = runId,
+        OldSprint    = runId,
+        HurtSprint   = runId,
+        Walk         = walkId,
+        OldWalk      = walkId,
+        Idle         = idleId,
+        OldIdle      = idleId,
+    }
+
+    if animFolder then
+        for name, id in pairs(map) do
+            if id then
+                local obj = animFolder:FindFirstChild(name)
+                if obj then
+                    obj.AnimationId = id
+                end
+            end
+        end
+    end
+
+    local function loadFreshTrack(id, priority)
+        if not id or id == "" then return nil end
+        local anim = Instance.new("Animation")
+        anim.AnimationId = id
+ 
+        local ok, track = pcall(function() return animator:LoadAnimation(anim) end)
+        anim:Destroy()
+        if ok and track then
+            if priority then track.Priority = priority end
+            return track
+        end
+        return nil
+    end
+
+    task.wait(0.05)
+
+    activeTracks.idle = loadFreshTrack(idleId, Enum.AnimationPriority.Core)
+    activeTracks.walk = loadFreshTrack(walkId, Enum.AnimationPriority.Movement)
+    activeTracks.run  = loadFreshTrack(runId,  Enum.AnimationPriority.Movement)
+
+    if activeTracks.idle then
+        activeTracks.idle:Play(blendTime)
+        activeTracks.current = activeTracks.idle
+    end
+
+    pcall(function()
+        local scripts = LocalPlayer:FindFirstChild("PlayerScripts")
+        local ca = scripts and scripts:FindFirstChild("ClientAnimations")
+        if ca then
+            ca.Enabled = false
+            task.wait()
+            ca.Enabled = true
+        end
+    end)
+
+    stateMachineConnection = RunService.RenderStepped:Connect(function()
+        local c = LocalPlayer.Character
+        if not c then return end
+        local h = c:FindFirstChildOfClass("Humanoid")
+        if not h or h.Health <= 0 then return end
+
+        local isMoving    = h.MoveDirection.Magnitude > 0.1
+        local isSprinting = h.WalkSpeed > 18
+
+        local newTrack
+        if isMoving and isSprinting then
+            newTrack = activeTracks.run
+        elseif isMoving then
+            newTrack = activeTracks.walk
+        else
+            newTrack = activeTracks.idle
+        end
+
+        if newTrack and newTrack ~= activeTracks.current then
+            if activeTracks.current and activeTracks.current.IsPlaying then
+                activeTracks.current:Stop(blendTime)
+            end
+            if not newTrack.IsPlaying then
+                newTrack:Play(blendTime)
+            end
+            activeTracks.current = newTrack
+        end
+    end)
+
+    WindUI:Notify({
+        Title = "Animations",
+        Content = "Animations applied successfully",
+        Duration = 3,
+        Icon = "circle-check",
+    })
+end
+
+local presets = {
+    Civilian = {
+        Run  = "rbxassetid://137375023685630",
+        Walk = "rbxassetid://84388941697203",
+        Idle = "rbxassetid://100930402371608"
+    },
+    OldCivilian = {
+        Run  = "rbxassetid://79488319304371",
+        Walk = "rbxassetid://138161225743614",
+        Idle = "rbxassetid://74309548749074"
+    },
+    Ghost = {
+        Run  = "rbxassetid://124260679864309",
+        Walk = "rbxassetid://133938914809228",
+        Idle = "rbxassetid://110395159339100"
+    }
+}
+
+AnimationsTab:Section({
+    Title = "Animations",
+    Icon = "play",
+})
+
+AnimationsTab:Button({
+    Title = "Apply civilian animations",
+    Callback = function()
+        local p = presets.Civilian
+        setAnims(p.Run, p.Walk, p.Idle)
+    end
+})
+
+AnimationsTab:Button({
+    Title = "Apply old civilian animations",
+    Callback = function()
+        local p = presets.OldCivilian
+        setAnims(p.Run, p.Walk, p.Idle)
+    end
+})
+
+AnimationsTab:Button({
+    Title = "Apply ghost animations",
+    Callback = function()
+        local p = presets.Ghost
+        setAnims(p.Run, p.Walk, p.Idle)
+    end
+})
+
+local killerOrder = { "Pursuer", "Badware", "Artful", "Harken", "Killdroid", "Paranoy" }
+
+local function getKillerModels()
+    local list = {}
+    pcall(function()
+        local killerFolder = ReplicatedStorage:WaitForChild("Characters", 5)
+        if killerFolder then
+            killerFolder = killerFolder:WaitForChild("Killer", 5)
+        end
+        if killerFolder then
+            for _, name in ipairs(killerOrder) do
+                local model = killerFolder:FindFirstChild(name)
+                if model then
+                    table.insert(list, model)
+                end
+            end
+        end
+    end)
+    return list
+end
+
+local function getAnimationOptions(killerModel)
+    local out = {}
+    if not killerModel then return out end
+
+    for _, child in ipairs(killerModel:GetChildren()) do
+        if child.Name == "Default" and child:FindFirstChild("Animations") then
+            table.insert(out, 1, child.Name)
+        end
+    end
+
+    for _, child in ipairs(killerModel:GetChildren()) do
+        if child.Name ~= "Default" and child:FindFirstChild("Animations") then
+            table.insert(out, child.Name)
+        end
+    end
+
+    return out
+end
+
+local function getAnimIdFromFolder(animFolder, ...)
+    for _, name in ipairs({...}) do
+        local obj = animFolder:FindFirstChild(name)
+        if obj and obj.AnimationId and obj.AnimationId ~= "" then
+            return obj.AnimationId
+        end
+    end
+    return nil
+end
+
+for _, killer in ipairs(getKillerModels()) do
+    local options = getAnimationOptions(killer)
+
+    if #options > 0 then
+        local selected = options[1]
+
+        AnimationsTab:Dropdown({
+            Title = "Choose " .. killer.Name .. " animations",
+            Values = options,
+            Value = options[1],
+            Callback = function(val)
+                selected = val
+            end
+        })
+
+        AnimationsTab:Button({
+            Title = "Apply " .. killer.Name .. " animations",
+            Callback = function()
+                local model = killer:FindFirstChild(selected)
+                if not model then return end
+
+                local animFolder = model:FindFirstChild("Animations")
+                if not animFolder then return end
+
+                local run  = getAnimIdFromFolder(animFolder, "Sprint", "NormalSprint", "OldSprint", "HurtSprint")
+                local walk = getAnimIdFromFolder(animFolder, "Walk", "OldWalk")
+                local idle = getAnimIdFromFolder(animFolder, "Idle", "OldIdle")
+
+                setAnims(run, walk, idle)
+            end
+        })
+    end
+end
+
+AntiTab:Section({
+    Title = "Anti",
+    Icon = "circle-off",
+})
+
+AntiTab:Toggle({
+    Title = "Anti-Artful walls",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local Workspace = game:GetService("Workspace")
+        local Other = Workspace:WaitForChild("GameAssets")
+            :WaitForChild("Teams")
+            :WaitForChild("Other")
+
+        _G.antiWalls = state
+        _G.antiWallsCache = _G.antiWallsCache or {}
+
+        local function apply(v)
+            if not (v:IsA("BasePart") and v.Name == "HumanoidRootPart" and v.Anchored) then return end
+
+            if _G.antiWalls then
+
+                if not _G.antiWallsCache[v] then
+                    _G.antiWallsCache[v] = {
+                        CanCollide = v.CanCollide,
+                        CanTouch = v.CanTouch,
+                        Transparency = v.Transparency
+                    }
+                end
+
+                v.CanCollide = false
+                v.CanTouch = false
+                v.Transparency = 0.5
+
+            else
+
+                if _G.antiWallsCache[v] then
+                    local data = _G.antiWallsCache[v]
+                    v.CanCollide = data.CanCollide
+                    v.CanTouch = data.CanTouch
+                    v.Transparency = data.Transparency
+                end
+
+            end
+        end
+
+        local function scan()
+            for _,v in ipairs(Other:GetDescendants()) do
+                apply(v)
+            end
+        end
+
+        scan()
+
+        if state then
+            _G.antiWallsConn = Other.DescendantAdded:Connect(function(v)
+                if not _G.antiWalls then return end
+                task.wait(0.05)
+                apply(v)
+            end)
+        else
+            if _G.antiWallsConn then
+                _G.antiWallsConn:Disconnect()
+                _G.antiWallsConn = nil
+            end
+
+            scan()
+        end
+
+    end
+})
+
+AntiTab:Toggle({
+    Title = "Disable badware computers cooldown",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local Workspace = game:GetService("Workspace")
+        local Other = Workspace:WaitForChild("GameAssets")
+            :WaitForChild("Teams")
+            :WaitForChild("Other")
+
+        _G.antiComputer = state
+        _G.antiComputerCache = _G.antiComputerCache or {}
+
+        local function apply(prompt)
+            if not prompt:IsA("ProximityPrompt") then return end
+
+            if _G.antiComputer then
+
+                if not _G.antiComputerCache[prompt] then
+                    _G.antiComputerCache[prompt] = {
+                        HoldDuration = prompt.HoldDuration,
+                        RequiresLineOfSight = prompt.RequiresLineOfSight,
+                        Enabled = prompt.Enabled
+                    }
+                end
+
+                prompt.HoldDuration = 0
+                prompt.RequiresLineOfSight = false
+                prompt.Enabled = true
+
+            else
+
+                if _G.antiComputerCache[prompt] then
+                    local data = _G.antiComputerCache[prompt]
+                    prompt.HoldDuration = data.HoldDuration
+                    prompt.RequiresLineOfSight = data.RequiresLineOfSight
+                    prompt.Enabled = data.Enabled
+                end
+
+            end
+        end
+
+        local function scan()
+            for _,v in ipairs(Other:GetChildren()) do
+                local primary = v:FindFirstChild("Primary")
+                if primary then
+                    for _,desc in ipairs(primary:GetDescendants()) do
+                        apply(desc)
+                    end
+                end
+            end
+        end
+
+        scan()
+
+        if state then
+            _G.antiComputerConn = Other.ChildAdded:Connect(function(v)
+                if not _G.antiComputer then return end
+                task.wait(0.05)
+
+                local primary = v:FindFirstChild("Primary")
+                if primary then
+                    for _,desc in ipairs(primary:GetDescendants()) do
+                        apply(desc)
+                    end
+                end
+            end)
+        else
+            if _G.antiComputerConn then
+                _G.antiComputerConn:Disconnect()
+                _G.antiComputerConn = nil
+            end
+
+            scan()
+        end
+
+    end
+})
+
+AntiTab:Toggle({
+    Title = "Anti-Killer only walls",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local Workspace = game:GetService("Workspace")
+        local GameAssets = Workspace:WaitForChild("GameAssets")
+
+        _G.antiKiller = state
+        _G.antiKillerCache = _G.antiKillerCache or {}
+
+        local function apply(folder)
+            local killerOnly = folder:FindFirstChild("KillerOnly")
+            if not killerOnly then return end
+
+            for _,v in ipairs(killerOnly:GetDescendants()) do
+                if v:IsA("BasePart") then
+
+                    if _G.antiKiller then
+                        if _G.antiKillerCache[v] == nil then
+                            _G.antiKillerCache[v] = {
+                                CanCollide = v.CanCollide,
+                                CanTouch = v.CanTouch
+                            }
+                        end
+
+                        v.CanCollide = false
+                        v.CanTouch = false
+
+                    else
+                        if _G.antiKillerCache[v] then
+                            v.CanCollide = _G.antiKillerCache[v].CanCollide
+                            v.CanTouch = _G.antiKillerCache[v].CanTouch
+                        end
+                    end
+
+                end
+            end
+        end
+
+        local function scan()
+            for _,map in ipairs(GameAssets:GetChildren()) do
+                if map.Name == "Map" then
+                    local config = map:FindFirstChild("Config")
+                    if config then
+                        apply(config)
+                    end
+                end
+            end
+        end
+
+        scan()
+
+        if state then
+            _G.antiKillerConn = GameAssets.ChildAdded:Connect(function(map)
+                if not _G.antiKiller then return end
+                if map.Name ~= "Map" then return end
+
+                task.wait(0.2)
+
+                local config = map:FindFirstChild("Config")
+                if config then
+                    apply(config)
+                end
+            end)
+        else
+            if _G.antiKillerConn then
+                _G.antiKillerConn:Disconnect()
+                _G.antiKillerConn = nil
+            end
+
+            scan()
+        end
+
+    end
+})
+
+MiscTab:Section({
+    Title = "External Scripts",
+    Icon = "folder-open",
+})
+
+MiscTab:Button({
+    Title = "Infinite yield",
+    Icon = "file",
+    Locked = false,
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+    end
+})
+
+MiscTab:Button({
+    Title = "Dex explorer",
+    Icon = "file",
+    Locked = false,
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
+    end
+})
+
+MiscTab:Button({
+    Title = "Dex plus",
+    Icon = "file",
+    Locked = false,
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/DexPlusBackup.luau"))()
+    end
+})
+
+local SoundService = game:GetService("SoundService")
+
+local MusicFolder = "ExaSaturn/assets/musics"
+
+if not isfolder(MusicFolder) then
+    makefolder(MusicFolder)
+end
+
+local CurrentMusic = nil
+local CurrentSound = nil
+local IsPlaying = false
+
+local LoopEnabled = true
+local VolumeValue = 50
+
+local CachedMusics = {}
+
+local function FormatTime(Time)
+    local Minutes = math.floor(Time / 60)
+    local Seconds = math.floor(Time % 60)
+
+    return string.format("%02d:%02d", Minutes, Seconds)
+end
+
+local function GetMusics()
+    local Musics = {}
+
+    for _, file in ipairs(listfiles(MusicFolder)) do
+        local lower = string.lower(file)
+
+        if lower:match("%.mp3$") or lower:match("%.ogg$") or lower:match("%.wav$") then
+            local name = file:match("([^\\/]+)$")
+
+            if name then
+                table.insert(Musics, name)
+            end
+        end
+    end
+
+    table.sort(Musics)
+
+    return Musics
+end
+
+local function TablesEqual(t1, t2)
+    if #t1 ~= #t2 then
+        return false
+    end
+
+    for i, v in ipairs(t1) do
+        if t2[i] ~= v then
+            return false
+        end
+    end
+
+    return true
+end
+
+MiscTab:Section({
+    Title = "Music player",
+    Icon = "music",
+})
+
+local MusicInfo = MiscTab:Paragraph({
+    Title = "Now playing",
+    Desc = "00:00/00:00"
+})
+
+MiscTab:Space()
+
+local function UpdateMusicInfo(Sound)
+    task.spawn(function()
+        while CurrentSound == Sound and Sound.Parent do
+            if Sound.IsLoaded then
+                local Position = FormatTime(Sound.TimePosition)
+                local Length = FormatTime(Sound.TimeLength)
+
+                MusicInfo:SetDesc(Position .. "/" .. Length)
+            end
+
+            task.wait(1)
+        end
+    end)
+end
+
+local function PlayMusic(MusicName)
+    if not MusicName then
+        return
+    end
+
+    local FilePath = MusicFolder .. "/" .. MusicName
+
+    if not isfile(FilePath) then
+        return
+    end
+
+    if CurrentSound then
+        CurrentSound:Destroy()
+        CurrentSound = nil
+    end
+
+    local Sound = Instance.new("Sound")
+    Sound.Name = "MusicPlayer"
+    Sound.SoundId = getcustomasset(FilePath)
+    Sound.Volume = VolumeValue / 100
+    Sound.Looped = LoopEnabled
+    Sound.Parent = SoundService
+
+    Sound:Play()
+
+    CurrentMusic = MusicName
+    CurrentSound = Sound
+    IsPlaying = true
+
+    MusicInfo:SetTitle("Now playing (" .. tostring(CurrentMusic) .. ")")
+    MusicInfo:SetDesc("00:00/00:00")
+
+    UpdateMusicInfo(Sound)
+end
+
+CachedMusics = GetMusics()
+
+local MusicDropdown = MiscTab:Dropdown({
+    Title = "Musics",
+    Desc = "Select your music",
+    Values = CachedMusics,
+    Value = "",
+    Callback = function(option)
+        CurrentMusic = option
+
+        if IsPlaying then
+            PlayMusic(option)
+        else
+            MusicInfo:SetTitle("Selected (" .. tostring(option) .. ")")
+            MusicInfo:SetDesc("00:00/00:00")
+        end
+    end
+})
+
+task.spawn(function()
+    while true do
+        local NewMusics = GetMusics()
+
+        if not TablesEqual(CachedMusics, NewMusics) then
+            CachedMusics = NewMusics
+
+            MusicDropdown:Refresh(NewMusics)
+        end
+
+        task.wait(2)
+    end
+end)
+
+MiscTab:Toggle({
+    Title = "Loop",
+    Desc = "",
+    Value = true,
+    Callback = function(state)
+        LoopEnabled = state
+
+        if CurrentSound then
+            CurrentSound.Looped = state
+        end
+    end
+})
+
+MiscTab:Slider({
+    Title = "Volume",
+    Value = {
+        Min = 0,
+        Max = 100,
+        Default = 50
+    },
+    Callback = function(value)
+        VolumeValue = value
+
+        if CurrentSound then
+            CurrentSound.Volume = value / 100
+        end
+    end
+})
+
+MiscTab:Space()
+
+local music_controls = MiscTab:HStack()
+
+local msc_VStack = music_controls:VStack()
+local msc_VStack2 = music_controls:VStack()
+
+msc_VStack:Button({
+    Title = "10s",
+    Icon = "chevrons-left",
+    Callback = function()
+        if CurrentSound then
+            CurrentSound.TimePosition = math.max(CurrentSound.TimePosition - 10, 0)
+        end
+    end
+})
+
+msc_VStack2:Button({
+    Title = "10s",
+    Icon = "chevrons-right",
+    Callback = function()
+        if CurrentSound then
+            CurrentSound.TimePosition = math.min(
+                CurrentSound.TimePosition + 10,
+                CurrentSound.TimeLength
+            )
+        end
+    end
+})
+
+msc_VStack:Button({
+    Title = "Play",
+    Icon = "play",
+    Callback = function()
+        if CurrentMusic then
+            PlayMusic(CurrentMusic)
+        end
+    end
+})
+
+msc_VStack2:Button({
+    Title = "Pause",
+    Icon = "pause",
+    Callback = function()
+        if CurrentSound then
+            CurrentSound:Pause()
+            IsPlaying = false
+        end
+    end
+})
+
+SettingsTab:Section({
+    Title = "General Settings",
+    Icon = "cog",
+})
+
+SettingsTab:Input({
+    Title = "Config name",
+    Desc = "",
+    Value = "",
+    Placeholder = "Enter config name...",
+    Callback = function(input)
+        _cfgName = input and input:match("%S") and input or nil
+        _selectedConfig = nil
+    end
+})
+
+local dropdown = SettingsTab:Dropdown({
+    Title = "Configs",
+    Desc = "",
+    Values = {},
+    Value = nil,
+    Callback = function(option)
+        _selectedConfig = option
+        _cfgName = nil
+    end
+})
+
+local function refreshDropdown()
+    local ConfigManager = Window.ConfigManager
+    local ok, values = pcall(function()
+        return ConfigManager:AllConfigs()
+    end)
+
+    if ok and type(values) == "table" then
+        table.sort(values, function(a,b)
+            return tostring(a):lower() < tostring(b):lower()
+        end)
+        dropdown:Refresh(values)
+    else
+        dropdown:Refresh({})
+    end
+end
+
+SettingsTab:Button({
+    Title = "Refresh",
+    Desc = "",
+    Callback = function()
+        refreshDropdown()
+
+        WindUI:Notify({
+            Title = "Config Manager",
+            Content = "Dropdown refreshed",
+            Duration = 5,
+            Icon = "folder-sync",
+        })
+    end
+})
+
+SettingsTab:Button({
+    Title = "Load",
+    Desc = "",
+    Callback = function()
+        if not _selectedConfig then return end
+
+        local ConfigManager = Window.ConfigManager
+        local name = _selectedConfig
+
+        local exists = false
+        local ok, configs = pcall(function()
+            return ConfigManager:AllConfigs()
+        end)
+
+        if ok and type(configs) == "table" then
+            for _,v in pairs(configs) do
+                if v == name then
+                    exists = true
+                    break
+                end
+            end
+        end
+
+        if not exists then
+            _selectedConfig = nil
+
+            WindUI:Notify({
+                Title = "Config Manager",
+                Content = "Configuration (" .. name .. ") doesn't exist",
+                Duration = 5,
+                Icon = "folder-closed",
+            })
+
+            return
+        end
+
+        local success = pcall(function()
+            ConfigManager:CreateConfig(name):Load()
+        end)
+
+        if success then
+            WindUI:Notify({
+                Title = "Config Manager",
+                Content = "Configuration (" .. name .. ") loaded",
+                Duration = 5,
+                Icon = "folder-input",
+            })
+        end
+    end
+})
+
+SettingsTab:Button({
+    Title = "Save",
+    Desc = "",
+    Callback = function()
+        local ConfigManager = Window.ConfigManager
+        local name = _cfgName or _selectedConfig
+        if not name or name == "" then return end
+
+        local ok = pcall(function()
+            ConfigManager:CreateConfig(name):Save()
+        end)
+
+        if ok then
+            _selectedConfig = name
+            _cfgName = nil
+
+            refreshDropdown()
+
+            WindUI:Notify({
+                Title = "Config Manager",
+                Content = "Configuration (" .. name .. ") saved",
+                Duration = 5,
+                Icon = "folder-open",
+            })
+        end
+    end
+})
+
+SettingsTab:Button({
+    Title = "Delete",
+    Desc = "",
+    Callback = function()
+        if not _selectedConfig then return end
+
+        local ConfigManager = Window.ConfigManager
+        local name = _selectedConfig
+
+        local ok = pcall(function()
+            ConfigManager:DeleteConfig(name)
+        end)
+
+        if ok then
+            _selectedConfig = nil
+
+            refreshDropdown()
+
+            WindUI:Notify({
+                Title = "Config Manager",
+                Content = "Configuration (" .. name .. ") deleted",
+                Duration = 5,
+                Icon = "folder-closed",
+            })
+        end
+    end
+})
+
+SettingsTab:Section({
+    Title = "Minor Settings",
+    Icon = "cog",
+})
+
+SettingsTab:Button({
+    Title = "ServerHop",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+
+        local TeleportService = game:GetService("TeleportService")
+        local Players = game:GetService("Players")
+
+        TeleportService:Teleport(game.PlaceId, Players.LocalPlayer)
+
+    end
+})
+
+SettingsTab:Button({
+    Title = "Rejoin",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+
+        local TeleportService = game:GetService("TeleportService")
+        local Players = game:GetService("Players")
+
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, Players.LocalPlayer)
+
+    end
+})
+
+AtlasDev = CreditsTab:Paragraph({
+    Title = "Atlas (Atlas_coder)",
+    Desc = "Principal coder n' designer (90% of all)",
+    Image = Dev:GetImage({
+        Name = "atlas_banner.png",
+        Path = "ExaSaturn/assets"",
+        Url = "https://raw.githubusercontent.com/HS1HYDRAX7/45786153617475726E/refs/heads/main/assets/atlas_banner.png"
+    })
+    ImageSize = 34,
+    Thumbnail = Dev:GetImage({
+        Name = "atlas_pfp.png",
+        Path = "ExaSaturn/assets"",
+        Url = "https://raw.githubusercontent.com/HS1HYDRAX7/45786153617475726E/refs/heads/main/assets/atlas_pfp.png"
+    }),
+    ThumbnailSize = 64,
+    Color = Color3.fromRGB(246, 207, 42)
+})
+
+--[[ dekyoDev = CreditsTab:Paragraph({
+    Title = "dekyo💤",
+    Desc = "coder n' designer (10% of all)",
+    Image = "https://cdn.discordapp.com/avatars/1513246773416825068/528f8d4d98555e78740aa4728076dcb0.png?size=2048",
+    ImageSize = 34,
+    Thumbnail = "https://cdn.discordapp.com/attachments/1520671506936500318/1527519468702400633/6_Sem_Titulo_20260717003644.png?ex=6a5af4dd&is=6a59a35d&hm=cebbf9c3dcf68a5b4ca1af2052b7cbfbc243bf8ed2cb33990d5440332aad6651&",
+    ThumbnailSize = 64,
+    Color = Color3.fromRGB(0, 0, 0)
+}) ]]
+
+local tp = loadstring(game:HttpGet("https://raw.githubusercontent.com/tanhoangviet/ToolForLua/refs/heads/main/TopbarPlus.lua"))()
+local Icon = tp.get()
+
+local UIS = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+
+local FrontFlipCooldown = false
+local FrontFlipEnabled = false
+
+local flipIcon
+local inputConnection
+
+local function FrontFlips()
+	if FrontFlipCooldown or not FrontFlipEnabled then
+		return
+	end
+
+	FrontFlipCooldown = true
+
+	local character = Players.LocalPlayer.Character
+	local hrp = character and character:FindFirstChild("HumanoidRootPart")
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
+
+	if not hrp or not humanoid then
+		FrontFlipCooldown = false
+		return
+	end
+
+	local savedTracks = {}
+
+	if animator then
+		for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+			table.insert(savedTracks, {
+				track = track,
+				time = track.TimePosition
+			})
+
+			track:Stop(0)
+		end
+	end
+
+	humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+	humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+	humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+	humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, false)
+	humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+	humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+
+	local duration = 0.45
+	local steps = 120
+
+	local startCFrame = hrp.CFrame
+	local forwardVector = startCFrame.LookVector
+	local upVector = Vector3.new(0, 1, 0)
+
+	task.spawn(function()
+		local startTime = tick()
+
+		for i = 1, steps do
+			local t = i / steps
+			local height = 4 * (t - t ^ 2) * 10
+
+			local nextPos =
+				startCFrame.Position
+				+ forwardVector * (35 * t)
+				+ upVector * height
+
+			local rotation =
+				startCFrame.Rotation
+				* CFrame.Angles(-math.rad(i * (360 / steps)), 0, 0)
+
+			hrp.CFrame = CFrame.new(nextPos) * rotation
+
+			local elapsedTime = tick() - startTime
+			local expectedTime = (duration / steps) * i
+			local waitTime = expectedTime - elapsedTime
+
+			if waitTime > 0 then
+				task.wait(waitTime)
+			end
+		end
+
+		hrp.CFrame =
+			CFrame.new(startCFrame.Position + forwardVector * 35)
+			* startCFrame.Rotation
+
+		humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+		humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
+		humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
+		humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+		humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+
+		humanoid:ChangeState(Enum.HumanoidStateType.Running)
+
+		if animator then
+			for _, data in ipairs(savedTracks) do
+				data.track:Play()
+				data.track.TimePosition = data.time
+			end
+		end
+
+		task.wait(0.25)
+
+		FrontFlipCooldown = false
+	end)
+end
+
+local function CreateFrontFlip()
+	if flipIcon or not FrontFlipEnabled then
+		return
+	end
+
+	flipIcon = Icon.new()
+		:setImage("rbxthumb://type=Asset&id=2714338264&w=150&h=150")
+		:setImageScale(0.7)
+		:setImageRatio(1)
+		:oneClick()
+		:align("Left")
+
+	flipIcon.deselected:Connect(function()
+		if FrontFlipEnabled then
+			FrontFlips()
+		end
+	end)
+
+	flipIcon:addToJanitor(function()
+		print("FrontFlip icon removed")
+	end)
+
+	inputConnection = UIS.InputBegan:Connect(function(input, busy)
+		if input.KeyCode == Enum.KeyCode.F and not busy and FrontFlipEnabled then
+			FrontFlips()
+		end
+	end)
+end
+
+local function RemoveFrontFlip()
+	if flipIcon then
+		flipIcon:destroy()
+		flipIcon = nil
+	end
+
+	if inputConnection then
+		inputConnection:Disconnect()
+		inputConnection = nil
+	end
+end
+
+function FrontFlip(value)
+	FrontFlipEnabled = value
+
+	if value then
+		CreateFrontFlip()
+	else
+		RemoveFrontFlip()
+	end
+end
+
+FrontFlip(true)
+
+WindUI:Notify({
+    Title = "ExaSaturn",
+    Content = "Welcome! We're glad to have you here. Enjoy your experience!",
+    Icon = "sparkles",
+    Duration = 5,
+})
