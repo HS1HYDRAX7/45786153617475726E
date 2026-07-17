@@ -1665,15 +1665,6 @@ MiscTab:Button({
     end
 })
 
-MiscTab:Button({
-    Title = "Dex plus 2",
-    Icon = "file",
-    Locked = false,
-    Callback = function()
-        loadstring(game:HttpGet("https://github.com/AZYsGithub/DexPlusPlus/releases/latest/download/out.lua"))()
-    end
-})
-
 local SoundService = game:GetService("SoundService")
 
 local MusicFolder = "ExaSaturn/assets/musics"
@@ -2267,7 +2258,7 @@ end
 FrontFlip(true)
 
 WindUI:Notify({
-    Title = "45786153617475726E",
+    Title = "ExaSaturn",
     Content = "Welcome! We're glad to have you here. Enjoy your experience!",
     Icon = "sparkles",
     Duration = 5,
