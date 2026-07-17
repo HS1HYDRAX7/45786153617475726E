@@ -1,6 +1,5 @@
 local _version = "1.6.66"
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/download/" .. _version .. "/main.lua"))()
-local Dev = "https://raw.githubusercontent.com/HS1HYDRAX7/45786153617475726E/refs/heads/main/functions/dev.lua"
 
 local Window = WindUI:CreateWindow({
     Title = "ExaSaturn",
@@ -2102,17 +2101,9 @@ SettingsTab:Button({
 AtlasDev = CreditsTab:Paragraph({
     Title = "Atlas (Atlas_coder)",
     Desc = "Principal coder n' designer (90% of all)",
-    Image = Dev:GetImage({
-        Name = "atlas_banner.png",
-        Path = "ExaSaturn/assets"",
-        Url = "https://raw.githubusercontent.com/HS1HYDRAX7/45786153617475726E/refs/heads/main/assets/atlas_banner.png"
-    })
+    Image = "https://raw.githubusercontent.com/HS1HYDRAX7/45786153617475726E/refs/heads/main/assets/atlas_banner.png"
     ImageSize = 34,
-    Thumbnail = Dev:GetImage({
-        Name = "atlas_pfp.png",
-        Path = "ExaSaturn/assets"",
-        Url = "https://raw.githubusercontent.com/HS1HYDRAX7/45786153617475726E/refs/heads/main/assets/atlas_pfp.png"
-    }),
+    Thumbnail = "https://raw.githubusercontent.com/HS1HYDRAX7/45786153617475726E/refs/heads/main/assets/atlas_pfp.png"
     ThumbnailSize = 64,
     Color = Color3.fromRGB(246, 207, 42)
 })
