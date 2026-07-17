@@ -89,7 +89,7 @@ end
 
 function Dev:GetImage(image)
   local name = image.Name or "image.png"
-  local path = image.Path or "Nightfall/assets"
+  local path = image.Path or "ExaSaturn/assets"
   local url = image.Url
   local full_path = `{path}/{name}`
 
@@ -122,7 +122,7 @@ end
 
 function Dev:GetVideo(video)
   local name = video.Name or "video.mp4"
-  local path = video.Path or "Nightfall/assets"
+  local path = video.Path or "ExaSaturn/assets"
   local url = video.Url
   local full_path = `{path}/{name}`
 
