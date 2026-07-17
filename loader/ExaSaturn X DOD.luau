@@ -39,14 +39,14 @@ Window:EditOpenButton({
 
 local Red = Color3.fromHex("#761818")
 
-local MainTab = Window:Tab({ Title = "Main", Icon = "star", Locked = false, IconShape = "Square", IconColor = Red, })
-local MovementTab = Window:Tab({ Title = "Movement", Icon = "chevrons-right", Locked = false, IconShape = "Square", IconColor = Red, })
-local VisualsTab = Window:Tab({ Title = "Visuals", Icon = "eye", Locked = false, IconShape = "Square", IconColor = Red, })
-local AbilitiesManagerTab = Window:Tab({ Title = "Abilities Manager", Icon = "blocks", Locked = false, IconShape = "Square", IconColor = Red, })
-local AnimationsTab = Window:Tab({ Title = "Animations", Icon = "play", Locked = false, IconShape = "Square", IconColor = Red, })
-local AntiTab = Window:Tab({ Title = "Anti", Icon = "circle-off", Locked = false, IconShape = "Square", IconColor = Red, })
-local MiscTab = Window:Tab({ Title = "Misc", Icon = "folder", Locked = false, IconShape = "Square", IconColor = Red, })
-local SettingsTab = Window:Tab({ Title = "Settings", Icon = "cog", Locked = false, IconShape = "Square", IconColor = Red, })
+local MainTab = Window:Tab({ Title = "Main", Icon = "star", Locked = false, })
+local MovementTab = Window:Tab({ Title = "Movement", Icon = "chevrons-right", Locked = false, })
+local VisualsTab = Window:Tab({ Title = "Visuals", Icon = "eye", Locked = false, })
+local AbilitiesManagerTab = Window:Tab({ Title = "Abilities Manager", Icon = "blocks", Locked = false, })
+local AnimationsTab = Window:Tab({ Title = "Animations", Icon = "play", Locked = false, })
+local AntiTab = Window:Tab({ Title = "Anti", Icon = "circle-off", Locked = false, })
+local MiscTab = Window:Tab({ Title = "Misc", Icon = "folder", Locked = false, })
+local SettingsTab = Window:Tab({ Title = "Settings", Icon = "cog", Locked = false, })
 
 MainTab:Paragraph({
     Title = "Open or Minimize UI IN PC",
