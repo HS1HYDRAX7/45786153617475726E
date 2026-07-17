@@ -1,0 +1,3 @@
+local icons = {}
+
+local banners = {}
