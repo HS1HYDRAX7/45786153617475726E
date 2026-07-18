@@ -132,54 +132,115 @@ MovementTab:Toggle({
 })
 
 MovementTab:Toggle({
-    Title = "Infinite stamina",
+    Title = "Infinite Stamina",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local player = game:GetService("Players").LocalPlayer
+        _G.infStamina = state
+
+        if _G.staminaConn then
+            _G.staminaConn:Disconnect()
+            _G.staminaConn = nil
+        end
+
+        if state then
+            _G.staminaConn = game:GetService("RunService").Heartbeat:Connect(function()
+                if not _G.infStamina then return end
+
+                if player:GetAttribute("Stamina") ~= nil and player:GetAttribute("MaxStamina") ~= nil then
+                    if player:GetAttribute("Stamina") ~= player:GetAttribute("MaxStamina") then
+                        player:SetAttribute("Stamina", player:GetAttribute("MaxStamina"))
+                    end
+                end
+            end)
+        end
+
+    end
+})
+
+MovementTab:Toggle({
+    Title = "Max Stamina",
     Desc = "",
     Value = false,
     Callback = function(state)
 
         local player = game:GetService("Players").LocalPlayer
 
-        _G.infStamina = state
+        _G.maxStaminaEnabled = state
+        _G.maxStaminaValue = _G.maxStaminaValue or 100
 
-        local function getModule()
-            local gui = player:FindFirstChild("PlayerGui")
-            if not gui then return end
-
-            local main = gui:FindFirstChild("MainGui")
-            if not main then return end
-
-            local client = main:FindFirstChild("Client")
-            if not client then return end
-
-            local modules = client:FindFirstChild("Modules")
-            if not modules then return end
-
-            local movement = modules:FindFirstChild("Movement")
-            if not movement then return end
-
-            return require(movement)
+        if _G.maxStaminaConn then
+            _G.maxStaminaConn:Disconnect()
+            _G.maxStaminaConn = nil
         end
 
         if state then
-
-            local staminaM = getModule()
-            if staminaM then
-
-                _G.stamConn = game:GetService("RunService").Heartbeat:Connect(function()
-                    if _G.infStamina then
-                        staminaM.Stamina = staminaM.MaxStamina
+            _G.maxStaminaConn = player:GetAttributeChangedSignal("MaxStamina"):Connect(function()
+                if player:GetAttribute("MaxStamina") ~= nil then
+                    if player:GetAttribute("MaxStamina") ~= _G.maxStaminaValue then
+                        player:SetAttribute("MaxStamina", _G.maxStaminaValue)
                     end
-                end)
+                end
+            end)
 
+            if player:GetAttribute("MaxStamina") ~= nil then
+                player:SetAttribute("MaxStamina", _G.maxStaminaValue)
             end
+        end
 
-        else
+    end
+})
 
-            if _G.stamConn then
-                _G.stamConn:Disconnect()
-                _G.stamConn = nil
+MovementTab:Slider({
+    Title = "Max Stamina Value",
+    Desc = "",
+    Step = 1,
+    Value = {
+        Min = 1,
+        Max = 1000000000,
+        Default = 100,
+    },
+    Callback = function(value)
+
+        _G.maxStaminaValue = value
+
+        if _G.maxStaminaEnabled then
+            local player = game:GetService("Players").LocalPlayer
+
+            if player:GetAttribute("MaxStamina") ~= nil then
+                player:SetAttribute("MaxStamina", value)
             end
+        end
 
+    end
+})
+
+MovementTab:Toggle({
+    Title = "Infinite Oxygen",
+    Desc = "",
+    Value = false,
+    Callback = function(state)
+
+        local player = game:GetService("Players").LocalPlayer
+        _G.infOxygen = state
+
+        if _G.oxygenConn then
+            _G.oxygenConn:Disconnect()
+            _G.oxygenConn = nil
+        end
+
+        if state then
+            _G.oxygenConn = game:GetService("RunService").Heartbeat:Connect(function()
+                if not _G.infOxygen then return end
+
+                if player:GetAttribute("Oxygen") ~= nil then
+                    if player:GetAttribute("Oxygen") ~= math.huge then
+                        player:SetAttribute("Oxygen", math.huge)
+                    end
+                end
+            end)
         end
 
     end
