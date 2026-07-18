@@ -71,8 +71,8 @@ local ok = pcall(function() screenGui.Parent = game:GetService("CoreGui") end)
 if not ok then screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui") end
 
 local sound = Instance.new("Sound")
-sound.SoundId = "rbxassetid://104900580281389"
-sound.Volume  = 0.5
+sound.SoundId = "rbxassetid://12222253"
+sound.Volume  = 1
 sound.Parent  = SoundService
 sound.Ended:Connect(function() sound:Destroy() end)
 
