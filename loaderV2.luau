@@ -20,6 +20,7 @@ local CONFIG = {
     Credits          = {
         "Made by Atlas (Owner, Coder)",
         "Made by dekyo (Coder)",
+        "Made by Claude Sonnet 5 (Coder)",
     },
     TypeSpeed        = 0.032,
     EraseSpeed       = 0.018,
