@@ -1,7 +1,7 @@
 getgenv().gamesConfig = {
     {
         gameName = "Die of death",
-        placeId = 71895508397153-0,
+        placeId = 71895508397153,
         ConfigScript = [[
             loadstring(game:HttpGet("https://raw.githubusercontent.com/HS1HYDRAX7/45786153617475726E/refs/heads/main/loader/ExaSaturn%20X%20DOD.luau"))()        ]]
     },
