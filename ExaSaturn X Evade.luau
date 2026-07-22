@@ -150,7 +150,7 @@ PlayerSec:Paragraph({
 PlayerSec:Slider({
     Value = { Min = 0, Max = 10, Default = 0 },
     Step = 0.5,
-    Callback = function(state)
+    Callback = function(_G.state)
     end
 })
 
@@ -159,7 +159,7 @@ PlayerSec:Toggle({
     Callback = function(dot)
         local dotinfo = dot
         if dotinfo then
-            local multiplicador = state 
+            local multiplicador = _G.state 
     
             local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
             local humanoid = character:FindFirstChildOfClass("Humanoid")
