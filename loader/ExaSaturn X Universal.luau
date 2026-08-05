@@ -3,7 +3,7 @@ local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/rel
 
 local Window = WindUI:CreateWindow({
     Title = "ExaSaturn",
-    Icon = "hexagon",
+    Icon = "rbxassetid://74955410184437",
     Author = "none",
     Folder = "ExaSaturn",
     Transparent = true,
