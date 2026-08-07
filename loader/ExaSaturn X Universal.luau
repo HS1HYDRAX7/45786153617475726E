@@ -111,6 +111,69 @@ MainTab:Toggle({
 })
 
 MiscTab:Section({
+    Title = "ExaSaturn Simple Executor",
+    Icon = "code",
+})
+
+local executor_code = ""
+
+MiscTab:Input({
+    Title = "ESE",
+    Desc = "",
+    Type = "Textarea",
+    Placeholder = "print('Hello World')",
+    Value = "",
+    Locked = false,
+    Callback = function(text)
+        executor_code = text
+    end
+})
+
+MiscTab:Space()
+
+MiscTab:Button({
+    Title = "Execute",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+        if executor_code == "" then
+            print("No code to execute")
+            return
+        end
+        
+        local func
+        if loadstring then
+            func = loadstring(executor_code)
+        else
+            func = load(executor_code)
+        end
+        
+        local success, result = pcall(function()
+            return func()
+        end)
+        
+        if success then
+            if result then
+                print("Result:", result)
+            end
+        else
+            print("Error:", result)
+        end
+    end
+})
+
+MiscTab:Button({
+    Title = "Clear",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+        executor_code = ""
+    end
+})
+
+MiscTab:Space()
+
+MiscTab:Section({
     Title = "External Scripts",
     Icon = "folder-open",
 })
